@@ -1,0 +1,120 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<style>
+.demo-card-wide.mdl-card {
+  width: 312px;
+}
+.demo-card-wide > .mdl-card__title {
+  color: #fff;
+  height: 176px;
+  background: url('../assets/demos/welcome_card.jpg') center / cover;
+}
+.demo-card-wide > .mdl-card__menu {
+  color: #fff;
+}
+.demo-card-event.mdl-card {
+  width: 256px;
+  height: 256px;
+  background: #3E4EB8;
+}
+.demo-card-event > .mdl-card__actions {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.demo-card-event > .mdl-card__title {
+  align-items: flex-start;
+}
+.demo-card-event > .mdl-card__title > h4 {
+  margin-top: 0;
+}
+.demo-card-event > .mdl-card__actions {
+  display: flex;
+  box-sizing:border-box;
+  align-items: center;
+}
+.demo-card-event > .mdl-card__title,
+.demo-card-event > .mdl-card__actions,
+.demo-card-event > .mdl-card__actions > .mdl-button {
+  color: #fff;
+}
+
+.flash {
+  background-color: #C8E6C9;
+  color: #FFFFFF;
+  margin: auto;
+  width:60%;
+  text-decoration: none;
+}
+.flashli {
+  color: #FFFFFF;
+  list-style-type: none;
+  text-align: center;
+}
+
+#view-source {
+  position: fixed;
+  display: block;
+  right: 0;
+  bottom: 0;
+  margin-right: 40px;
+  margin-bottom: 40px;
+  z-index: 900;
+}
+</style>
+
+
+<div class="mdl-layout__content mdl-color-text--grey-700">
+<div class="mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
+  </br></br></br></br> 
+
+  <!-- Display flash message --> 
+  <section class="section--center mdl-grid mdl-grid--no-spacing">   
+  </br></br>
+    <div class="flash">
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <ul>
+        {% for message in messages %}
+        <li class="flashli"> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% endwith %}
+      <!-- Timeout flash message -->
+      <script>$('#flashmessage').fadeOut(5000);</script>
+    </div>
+  </section>
+
+
+  <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+    <header class="mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone">
+      <h3>Locations</h3>
+      {% for city in cities %}
+      <a href = "{{url_for('showEvent', city_id = city.id)}}">
+        <h4>{{city.name}}, {{city.state}}</h4>
+      </a>
+      {% endfor %}
+    </header>
+    <div class="mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone">
+      <div class="mdl-card__supporting-text">    
+        <!-- Show list of all Events -->
+        <h3>All Events - Should this be Latest events???</h3>
+        {% for event in allEvents %}
+        <h4>{{event.name}} ({{event.city.name}})</h4>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Show button to add new Event if logged in -->
+  {%if 'username' in session %}
+    <a href="{{url_for('newEvent')}}" id="view-source" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+      <i class="material-icons">event</i>
+    </a>
+  {% endif %}
+</div>
+</div>
+
+{% endblock %}

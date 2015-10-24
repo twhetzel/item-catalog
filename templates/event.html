@@ -1,0 +1,124 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<style>
+.demo-card-wide.mdl-card {
+  width: 312px;
+}
+.demo-card-wide > .mdl-card__title {
+  color: #fff;
+  height: 176px;
+  background: url('../assets/demos/welcome_card.jpg') center / cover;
+}
+.demo-card-wide > .mdl-card__menu {
+  color: #fff;
+}
+
+#view-source {
+  position: fixed;
+  display: block;
+  right: 0;
+  bottom: 0;
+  margin-right: 40px;
+  margin-bottom: 40px;
+  z-index: 900;
+}
+</style>
+
+
+<div class="mdl-layout__content mdl-color-text--grey-700">
+<div class="mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
+  </br></br></br></br>    
+
+  <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+    <header class="mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone">
+      <h3>Locations</h3>
+      {% for city in cities %}
+      <a href = "{{url_for('showEvent', city_id = city.id)}}">
+        <h4>{{city.name}}, {{city.state}}</h4>
+      </a>
+      {% endfor %}
+    </header>
+    <div class="mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone">
+      <div class="mdl-card__supporting-text">
+        <h3>Events in {{city.name}} ({{eventCountByCity}} events)</h3>
+        {% for event in events %}
+        <a href = "{{url_for('showEventDetails', city_id = city.id, event_id=event.id)}}">
+          <h4>{{event.name}}</h4>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+
+<!-- ORIGINAL -->
+<div class="mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">	
+	<main class="mdl-layout__content">
+    <br><br>
+   	
+    
+    <div class="mdl-grid">
+     	<div class="mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>
+       	<div class="demo-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col">
+          <h1>Events in {{ city.name }}</h1>
+         		
+         	<a href="{{url_for('editCity', city_id = city.id)}}">
+         		<button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-color--blue-500" id="edit-event">
+         			<i class="material-icons" aria-hidden="true">edit</i>
+					   </button>
+				  </a>
+ 
+          <a href="{{url_for('newEvent', city_id = city.id, city_name=city.name )}}">
+            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" id="new-event">
+               <i class="material-icons" aria-hidden="true">event</i>
+            </button>
+          </a>
+          
+          <a href="{{url_for('deleteCity', city_id = city.id )}}">
+            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-color--red-300" id="delete-city">
+              <i class="material-icons" aria-hidden="true">delete</i>
+            </button>
+          </a>
+      
+          <!-- List all Events in City-->  
+          {% if events !=[] %}
+            <div class="row">
+              <div class="col-md-1"></div>
+                <div class="col-md-3">
+                  <h3>Events in {{city.name}}</h3>
+                    {% for i in events %}
+                        <div class="menu-item">
+                          <h3>{{i.name}}</h3>
+                          <p>{{i.description}}</p>
+                          <a href='{{url_for('editEvent', city_id = city.id, event_id=i.id ) }}'>Edit</a> | 
+                          <a href='{{url_for('deleteEvent', city_id = city.id, event_id=i.id ) }}'>Delete</a>
+                        </div>
+                    {% endfor %}
+                </div>
+              </div>
+            {% endif %}  
+
+        </div>
+      </div>
+    </main>
+</div>
+
+
+<div id="flashmessage" class = "flash">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+
+        <ul>
+          {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <!-- Timeout flash message -->
+        <script>$('#flashmessage').fadeOut(3000);</script>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+<title>Android Events</title>
+
+<!-- Always shows a header, even in smaller screens. -->
+<div class="mdl-layout mdl-js-layout">
+  
+  <header class="mdl-layout__header mdl-layout__header--scroll">
+    <div class="mdl-layout__header-row">	
+      <!-- Title -->
+      <span class="mdl-layout-title"><img src="/static/android-logo-transparent-background.png" alt="android" height="42" width="42">  Android Events</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation"> 
+      <!-- <a class="mdl-navigation__link" href="">Link</a> -->
+        {%if 'username' not in session %}
+        <!-- Accent-colored raised button with ripple -->
+		    <a href="{{url_for('showLogin')}}">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+          Login 
+  		    </button>
+        </a>
+        {% else %}
+        <a href="{{url_for('disconnect')}}">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Logout
+          </button>
+        </a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  
+  <!-- Navigation Drawer content -->
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">Menu</span>
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="{{url_for('showCities')}}">Home</a>
+      <a class="mdl-navigation__link" href="{{url_for('showAllEvents')}}">View all Events</a>
+      {%if 'username' not in session %}
+      <a class="mdl-navigation__link" href="{{url_for('showLogin')}}">Login</a>
+      {% else %}
+      <a class="mdl-navigation__link" href="{{url_for('disconnect')}}">Logout</a>
+      {% endif %}
+    </nav>
+  </div>
+  
+</div>
+

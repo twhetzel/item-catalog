@@ -1,0 +1,48 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<style>
+    #view-source {
+      position: fixed;
+      display: block;
+      right: 0;
+      bottom: 0;
+      margin-right: 40px;
+      margin-bottom: 40px;
+      z-index: 900;
+    }
+</style>
+
+
+<div class="mdl-layout__content mdl-color-text--grey-700">
+<div class="mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
+  </br></br>  
+    <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+          <!-- Display Event details -->
+            <div class="mdl-grid">
+            <div class="mdl-card mdl-cell mdl-cell--12-col mdl-shadow--2dp">
+              <div class="mdl-card__supporting-text">
+                <h4>{{event.name}}</h4>
+                {{event.description}}
+                </br>
+                {{event.city.name}}
+              </div>
+              
+              <!-- 
+              <div class="mdl-card__actions mdl-card--border">
+                <a href="#" class="mdl-button mdl-button--colored">View Event Site</a>
+              </div>   
+              <div class="mdl-card__menu">
+                <button class="mdl-button mdl-button--colored mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+                  <i class="material-icons">share</i>
+                </button>
+              </div>
+              -->
+            </div>
+          </div> 
+       </section> 
+    </div>
+</div>
+    
+{% endblock %}

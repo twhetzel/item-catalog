@@ -1,0 +1,89 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+	<div class="mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">	
+		<main class="mdl-layout__content">
+
+			<div class = 'flash'>
+				{% with messages = get_flashed_messages() %}
+    			{% if messages %}
+    		
+    			<ul>
+    				{% for message in messages %}
+       				<li> <strong> {{ message }} </strong> </li>
+        			{% endfor %}
+    			</ul>
+    			{% endif %}
+    			{% endwith %}
+    			<!-- Timeout flash message -->
+        		<script>$('#flashmessage').fadeOut(5000);</script>
+			</div>
+
+
+	<!--		
+	<div class="row divider green">
+		<div class="col-md-12"></div>
+	</div>
+	<div class="row banner menu">
+		<div class="col-md-11 col-md-offset-1 padding-none">
+			<h1>Add a new City</h1>
+		</div>
+	</div>
+	-->
+
+
+			<div class="mdl-grid">
+         		<div class="mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>
+         		<div class="demo-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col">
+				
+				<div>
+					<h3>Add a new City</h3>
+				</div>	
+
+
+				<div class="row">
+					<form action="#" method="post">
+						
+						<div class="mdl-textfield mdl-js-textfield">
+							<input class="mdl-textfield__input" type="text" name="city" />
+							<label class="mdl-textfield__label" for="city">City</label>
+						</div>
+						<br><br>
+						<div class="mdl-textfield md-js-textfield">
+							<input class="mdl-textfield__input" type="text" name="state" />
+							<label class="mdl-textfield__label" for="state">State</label>
+						</div>
+						<div class="padding-bottom"></div>
+						<!-- Accent-colored raised button with ripple -->
+							<button id="submit" type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+	  							Add City
+							</button>
+
+				
+					</form>
+				</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<!-- 			
+	<br><br><br>
+	<div class="row">
+		<div class="col-md-6 col-md-offset-1 padding-top">
+			<form action="#" method = "post">
+				<div class="form-group">
+				<label for="name">Name:</label>
+				<input type ="text" class="form-control" maxlength="100" name="name">
+				<label for="name">State:</label>
+				<input type ="text" class="form-control" maxlength="100" name="state">
+				<div class="padding-bottom"></div>
+				<button type="submit" class="btn btn-default" id="submit" type="submit">
+				<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>Create</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	-->
+
+{% endblock %}

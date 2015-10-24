@@ -1,0 +1,62 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+	
+<div class="mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">	
+<main class="mdl-layout__content">
+
+
+	<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>
+    <div class="demo-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col">
+	<div>
+		<h3>Edit event {{item.name}}</h3>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-6 col-md-offset-1 padding-top">
+			<form action="#" method = "post">
+				<div class="form-group">
+					<!-- Add Material Design form inputs to Edit form -->
+					<div class="mdl-textfield mdl-js-textfield">
+						<input class="mdl-textfield__input" type="text" name="name" value="{{item.name }}">
+						<label class="mdl-textfield__label" for="name">Event Name</label>
+					</div>
+
+					<div class="mdl-textfield mdl-js-textfield">
+						<label class="mdl-textfield__label" for="description">Description</label>
+						<textarea class="mdl-textfield__input" type="text" rows="3" name="description" id="description">{{item.description}}</textarea>
+					</div>
+
+					<!-- Add select for location -->
+					<div class="mdl-color-text--grey-400">Original location: {{item.city.name}}, {{item.city.state}}</div>
+					<select name="city_id">
+						{% for city in cities %}
+      					<option value="{{city.id}}" {{'selected' if city.name == item.city.name}}>{{city.name}}, {{city.state}}</option> {% endfor %}
+    				</select>
+					
+					<div class="padding-bottom"></div>
+
+
+					<button type="submit" class="btn btn-default mdl-button mdl-js-button mdl-button--colored" id="submit" type="submit">
+							<i class="material-icons" aria-hidden="true">save</i>Save
+					</button>
+
+
+					<a href="{{url_for('showCities')}}">
+						<button class="btn btn-default mdl-button mdl-js-button mdl-button--colored">
+						<i class="material-icons" aria-hidden="true">cancel</i> Cancel</button>
+					</a>
+				
+				</div>
+			</form>
+		</div>
+	</div>
+
+	</div>
+	</div>
+</main>
+</div>
+
+{% endblock %}
