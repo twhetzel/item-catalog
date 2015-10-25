@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
-from sqlalchemy import create_engine, asc, func, distinct, ForeignKeyConstraint
+from sqlalchemy import create_engine, asc, desc, func, distinct, ForeignKeyConstraint
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, City, Event, User
 from flask import session as login_session
@@ -16,6 +16,7 @@ import requests
 from sqlalchemy.ext.serializer import loads, dumps
 
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -341,7 +342,8 @@ def showCities():
     #testq = subq.union(cities).order_by(asc(City.name))
 
     # For faceted UI, also display all events
-    allEvents = session.query(Event).join(Event.city).order_by(City.name, Event.name).all()
+    allEvents = session.query(Event).join(Event.city).order_by(Event.event_date.desc(), City.name, Event.name).all()
+    app.logger.info(allEvents)
 
 
     cityCountTest1 = session.query(City.name, func.count(Event.city_id)).\
@@ -421,7 +423,7 @@ def deleteCity(city_id):
 # Show all events in all cities
 @app.route('/all-events/')
 def showAllEvents():
-    allEvents = session.query(Event).join(Event.city).order_by(City.name, Event.name).all()
+    allEvents = session.query(Event).join(Event.city).order_by(Event.event_date.desc(), City.name, Event.name).all()
     # app.logger.info(allEvents)
     return render_template('all-events.html', allEvents=allEvents)
 
@@ -435,7 +437,7 @@ def showEvent(city_id):
     # Filter display on right-hand panel to events in selected city
     city = session.query(City).filter_by(id=city_id).one() 
     # Get all events in selected city
-    events = session.query(Event).filter_by(city_id=city_id).all()
+    events = session.query(Event).filter_by(city_id=city_id).order_by(desc(Event.event_date)).all()
     # Get count of events in selected city
     eventCountByCity = session.query(func.count(Event.city_id)).\
         filter(Event.city_id == city_id).\
@@ -450,10 +452,7 @@ def showEventDetails(city_id, event_id):
     city = session.query(City).filter_by(id=city_id).one() 
     # Get all events in selected city
     event = session.query(Event).filter_by(id=event_id).one()
-    if 'username' not in login_session:
-        return render_template('publicEventDetails.html', city=city, event=event)
-    else:
-        return render_template('eventDetails.html', city=city, event=event)
+    return render_template('eventDetails.html', city=city, event=event)
 
 
 # Create a new Event in a City #TODO: Update similar to course example!
@@ -465,8 +464,13 @@ def newEvent():
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-        app.logger.info(request.form['city_id'])
+        app.logger.info(request.form['event_date'])
+        # Format date value before submitting to database
+        dt = request.form['event_date']
+        dt_obj = datetime.strptime(dt, '%Y-%m-%d')
+        app.logger.info(dt_obj)
         newEvent = Event(name=request.form['event'], description=request.form['description'], 
+            event_date=dt_obj,
             city_id=request.form['city_id'], user_id=login_session['user_id'])
         session.add(newEvent)
         session.commit()
@@ -491,6 +495,10 @@ def editEvent(event_id):
     if editedEvent.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('You are not authorized to delete this event.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
+        # Format event date before submitting to database
+        dt = request.form['event_date']
+        dt_obj = datetime.strptime(dt, '%Y-%m-%d')
+        editedEvent.event_date = dt_obj
         if request.form['name']:
             editedEvent.name = request.form['name']
             app.logger.info(editedEvent.name)
@@ -498,7 +506,7 @@ def editEvent(event_id):
             editedEvent.description = request.form['description']
             app.logger.info(editedEvent.description)
         if request.form['city_id']:
-            editedEvent.city.id = request.form['city_id']
+            editedEvent.city_id = request.form['city_id']
             app.logger.info(editedEvent.city_id)
         session.add(editedEvent)
         session.commit()
