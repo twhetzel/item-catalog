@@ -29,6 +29,11 @@
 						<textarea class="mdl-textfield__input" type="text" rows="3" name="description" id="description">{{item.description}}</textarea>
 					</div>
 
+					<div class="mdl-textfield mdl-js-textfield">
+						<label class="mdl-textfield__label" for="event_date">Event Date</label>
+						<input class="mdl-textfield__input" type="text" name="event_date" value="{{item.event_date}}">
+					</div>
+
 					<!-- Add select for location -->
 					<div class="mdl-color-text--grey-400">Original location: {{item.city.name}}, {{item.city.state}}</div>
 					<select name="city_id">
