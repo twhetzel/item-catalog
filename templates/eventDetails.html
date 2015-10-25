@@ -43,8 +43,9 @@
               
               <div class="mdl-card__supporting-text">
                 {{event.description}}
-                <br>
-                {{event.city.name}}
+                <div>
+                  Location: {{event.city.name}} | Date: {{event.event_date}}
+                </div>
               </div>
                
               <div class="mdl-card__actions mdl-card--border">
