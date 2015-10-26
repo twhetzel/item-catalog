@@ -34,6 +34,16 @@
 						<input class="mdl-textfield__input" type="text" name="event_date" value="{{item.event_date}}">
 					</div>
 
+					<div class="mdl-textfield mdl-js-textfield">
+						<input class="mdl-textfield__input" type="text" name="event_url" value="{{item.event_url}}">
+						<label class="mdl-textfield__label" for="name">Event URL</label>
+					</div>
+
+					<div class="mdl-textfield mdl-js-textfield">
+						<input class="mdl-textfield__input" type="text" name="image_url" value="{{item.image_url}}">
+						<label class="mdl-textfield__label" for="name">Image URL</label>
+					</div>
+
 					<!-- Add select for location -->
 					<div class="mdl-color-text--grey-400">Original location: {{item.city.name}}, {{item.city.state}}</div>
 					<select name="city_id">
