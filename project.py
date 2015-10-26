@@ -323,6 +323,10 @@ def allCitiesAndEventsXML():
             en.text = e.name
             child = SubElement(en, 'description')
             child.text = e.description
+            child = SubElement(en, 'event_date')
+            child.text = str(e.event_date)
+            child = SubElement(en, 'event_url')
+            child.text = e.event_url
             child = SubElement(en, 'user_id')
             child.text = str(e.user_id)
      
