@@ -22,6 +22,8 @@
 								<i class="material-icons" aria-hidden="true">clear</i>Cancel
 							</button>
 						</a>
+						<!-- Prevent cross-site request forgery -->
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 					</form>
 				</div>
 			</div>
