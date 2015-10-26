@@ -470,7 +470,7 @@ def newEvent():
         dt_obj = datetime.strptime(dt, '%Y-%m-%d')
         app.logger.info(dt_obj)
         newEvent = Event(name=request.form['event'], description=request.form['description'], 
-            event_date=dt_obj,
+            event_date=dt_obj, event_url=request.form['event_url'], image_url=request.form['image_url'],
             city_id=request.form['city_id'], user_id=login_session['user_id'])
         session.add(newEvent)
         session.commit()
@@ -496,9 +496,9 @@ def editEvent(event_id):
         return "<script>function myFunction() {alert('You are not authorized to delete this event.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         # Format event date before submitting to database
-        dt = request.form['event_date']
-        dt_obj = datetime.strptime(dt, '%Y-%m-%d')
-        editedEvent.event_date = dt_obj
+        if request.form['event_date']:
+            dt_obj = datetime.strptime(request.form['event_date'], '%Y-%m-%d')
+            editedEvent.event_date = dt_obj
         if request.form['name']:
             editedEvent.name = request.form['name']
             app.logger.info(editedEvent.name)
@@ -508,6 +508,11 @@ def editEvent(event_id):
         if request.form['city_id']:
             editedEvent.city_id = request.form['city_id']
             app.logger.info(editedEvent.city_id)
+        if request.form['event_url']:
+            editedEvent.event_url = request.form['event_url']
+            app.logger.info(editedEvent.event_url)
+        if request.form['image_url']:
+            editedEvent.image_url = request.form['image_url']
         session.add(editedEvent)
         session.commit()
         flash('Event Successfully Edited')
