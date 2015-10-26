@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, jsonify, \
     url_for, flash
 from flask import session as login_session
+from flask.ext.seasurf import SeaSurf
+
 from sqlalchemy import create_engine, asc, desc, \
     func, distinct
 from sqlalchemy.orm import sessionmaker
@@ -22,6 +24,8 @@ from datetime import datetime
 
 
 app = Flask(__name__)
+# Use SeaSurf to prevent cross-site request forgery
+csrf = SeaSurf(app)
 
 
 CLIENT_ID = json.loads(
@@ -47,7 +51,8 @@ def showLogin():
     return render_template('login.html', STATE=state)
 
 
-# Login using Facebook credentials
+# Login using Facebook credentials and CSRF
+@csrf.exempt
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
     if request.args.get('state') != login_session['state']:
@@ -129,7 +134,8 @@ def fbdisconnect():
     return "you have been logged out"
 
 
-# Login with Google Plus credentials
+# Login with Google Plus credentials and CSRF 
+@csrf.exempt
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
