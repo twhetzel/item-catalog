@@ -24,7 +24,7 @@
           <!-- List all Events in all Cities -->
             <div class="mdl-grid">
             {% for event in allEvents %}
-            <div class="mdl-card mdl-cell mdl-cell--12-col mdl-shadow--2dp">
+            <div class="mdl-card mdl-cell mdl-cell--8-col mdl-shadow--2dp">
               <div class="mdl-card__supporting-text">
                 <h4>{{event.name}}</h4>
                 {{event.description}}
@@ -32,7 +32,17 @@
                 Location: {{event.city.name}} | Date: {{event.event_date}}
               </div>
               <div class="mdl-card__actions mdl-card--border">
-                <a href="#" class="mdl-button mdl-button--colored">View Event Site</a>
+                <a href="{{event.event_url}}" target="_blank" class="mdl-button mdl-button--colored">View Event Site</a>
+                <!-- Show Edit and Delete buttons if logged in --> 
+              {%if 'username' in session %} 
+                <div class="mdl-layout-spacer"></div>
+                  <a href="{{url_for('editEvent', event_id=event.id)}}" class="mdl-button mdl-js-button mdl-button--colored" id="edit-event">
+                    <i class="material-icons" aria-hidden="true">edit</i>
+                  </a>
+                  <a href="{{url_for('deleteEvent', event_id=event.id)}}" class="mdl-button mdl-js-button mdl-button--colored" id="delete-event">
+                    <i class="material-icons" aria-hidden="true">delete</i>
+                  </a>
+                  {% endif %}
               </div>
               
               <div class="mdl-card__menu">
