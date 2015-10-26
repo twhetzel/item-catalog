@@ -65,6 +65,8 @@
 					</a>
 				
 				</div>
+				<!-- Prevent cross-site request forgery -->
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			</form>
 		</div>
 	</div>
