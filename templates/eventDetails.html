@@ -2,6 +2,7 @@
 {% block content %}
 {% include "header.html" %}
 
+
 <style>
 .demo-card-event.mdl-card {
   width: 512px;
@@ -27,29 +28,74 @@
 .demo-card-event > .mdl-card__actions > .mdl-button {
   color: #536DFE;
 }
+
+.square-image {
+      padding: 6px;
+      margin: auto;
+      background-position: center;
+      object-fit: contain;
+    }
 </style>
 
-<div class="mdl-layout__content mdl-color-text--grey-700">
-<div class="mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
-  </br></br>  
-    <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+<div class="mdl-demo mdl-color-text--grey-700 mdl-base">
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+<main class="mdl-layout__content"> 
+  <div class="mdl-layout__tab-panel is-active">
+   <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+        <header class="mdl-cell mdl-color--green-50">
+          <img src="{{event.image_url}}" class="square-image"/>
+        </header>
+        <div class="mdl-card demo-card-event">
+          <div class="mdl-card__title mdl-card--expand">
+            <h4 class="mdl-card__title-text">{{event.name}}</h4>
+          </div>
+
+          <div class="mdl-card__supporting-text">
+            {{event.description}}
+            <div>
+            Location: {{event.city.name}} | Date: {{event.event_date}}
+            </div>
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <a href="{{event.event_url}}" target="_blank" class="mdl-button mdl-button--colored">View Event Site</a>
+              <!-- Show Edit and Delete buttons if logged in --> 
+              {%if 'username' in session %} 
+                <div class="mdl-layout-spacer"></div>
+                  <a href="{{url_for('editEvent', event_id=event.id)}}" class="mdl-button mdl-js-button mdl-button--colored" id="edit-event">
+                    <i class="material-icons" aria-hidden="true">edit</i>
+                  </a>
+                  <a href="{{url_for('deleteEvent', event_id=event.id)}}" class="mdl-button mdl-js-button mdl-button--colored" id="delete-event">
+                    <i class="material-icons" aria-hidden="true">delete</i>
+                  </a>
+                  {% endif %}
+            </div>
+          </div>
+            <div class="mdl-card__menu">
+              <button class="mdl-button mdl-button--colored mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+                <i class="material-icons">share</i>
+              </button>
+            </div>
+      </section>
+
+
+      <br><br>
+
+    <section class="section--center mdl-grid mdl-grid--no-spacing">
           <!-- Display Event details -->
-            <div class="mdl-grid">
+          <div class="mdl-grid">  
             <div class="demo-card-event mdl-card mdl-cell mdl-cell--12-col mdl-shadow--2dp">
-              
+              <img src="{{event.image_url}}" class="square-image" width="400px"/>
               <div class="mdl-card__title mdl-card--expand">
                 <h4 class="mdl-card__title-text">{{event.name}}</h4>
               </div>
-              
               <div class="mdl-card__supporting-text">
                 {{event.description}}
                 <div>
                   Location: {{event.city.name}} | Date: {{event.event_date}}
                 </div>
-              </div>
-               
+              </div> 
               <div class="mdl-card__actions mdl-card--border">
-                <a href="#" class="mdl-button mdl-button--colored">View Event Site</a>
+                <a href="{{event.event_url}}" target="_blank" class="mdl-button mdl-button--colored">View Event Site</a>
                 <!-- Show Edit and Delete buttons if logged in --> 
                 {%if 'username' in session %} 
                 <div class="mdl-layout-spacer"></div>
@@ -61,18 +107,20 @@
                   </a>
                   {% endif %}
               </div> 
-              
-
               <div class="mdl-card__menu">
                 <button class="mdl-button mdl-button--colored mdl-button--icon mdl-js-button mdl-js-ripple-effect">
                   <i class="material-icons">share</i>
                 </button>
               </div>
-
             </div>
-          </div> 
+          </div>
        </section> 
+
     </div>
 </div>
+</main>
+
+
+
     
 {% endblock %}
