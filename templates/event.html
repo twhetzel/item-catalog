@@ -26,6 +26,20 @@
 }
 </style>
 
+<div id="flashmessage" class = "flash">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+
+        <ul>
+          {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <!-- Timeout flash message -->
+        <script>$('#flashmessage').fadeOut(3000);</script>
+    </div>
 
 <div class="mdl-layout__content mdl-color-text--grey-700">
 <div class="mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
@@ -51,74 +65,5 @@
       </div>
     </div>
   </section>
-
-
-<!-- ORIGINAL -->
-<div class="mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">	
-	<main class="mdl-layout__content">
-    <br><br>
-   	
-    
-    <div class="mdl-grid">
-     	<div class="mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>
-       	<div class="demo-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col">
-          <h1>Events in {{ city.name }}</h1>
-         		
-         	<a href="{{url_for('editCity', city_id = city.id)}}">
-         		<button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-color--blue-500" id="edit-event">
-         			<i class="material-icons" aria-hidden="true">edit</i>
-					   </button>
-				  </a>
- 
-          <a href="{{url_for('newEvent', city_id = city.id, city_name=city.name )}}">
-            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" id="new-event">
-               <i class="material-icons" aria-hidden="true">event</i>
-            </button>
-          </a>
-          
-          <a href="{{url_for('deleteCity', city_id = city.id )}}">
-            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-color--red-300" id="delete-city">
-              <i class="material-icons" aria-hidden="true">delete</i>
-            </button>
-          </a>
-      
-          <!-- List all Events in City-->  
-          {% if events !=[] %}
-            <div class="row">
-              <div class="col-md-1"></div>
-                <div class="col-md-3">
-                  <h3>Events in {{city.name}}</h3>
-                    {% for i in events %}
-                        <div class="menu-item">
-                          <h3>{{i.name}}</h3>
-                          <p>{{i.description}}</p>
-                          <a href='{{url_for('editEvent', city_id = city.id, event_id=i.id ) }}'>Edit</a> | 
-                          <a href='{{url_for('deleteEvent', city_id = city.id, event_id=i.id ) }}'>Delete</a>
-                        </div>
-                    {% endfor %}
-                </div>
-              </div>
-            {% endif %}  
-
-        </div>
-      </div>
-    </main>
-</div>
-
-
-<div id="flashmessage" class = "flash">
-      {% with messages = get_flashed_messages() %}
-        {% if messages %}
-
-        <ul>
-          {% for message in messages %}
-            <li> <strong> {{ message }} </strong> </li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        <!-- Timeout flash message -->
-        <script>$('#flashmessage').fadeOut(3000);</script>
-    </div>
 
 {% endblock %}
