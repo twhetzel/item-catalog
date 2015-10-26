@@ -1,19 +1,21 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
-from sqlalchemy import create_engine, asc, desc, func, distinct, ForeignKeyConstraint
-from sqlalchemy.orm import sessionmaker
-from database_setup import Base, City, Event, User
+from flask import Flask, render_template, request, redirect, jsonify, \
+    url_for, flash
 from flask import session as login_session
+from sqlalchemy import create_engine, asc, desc, \
+    func, distinct
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.serializer import loads, dumps
+from database_setup import Base, City, Event, User
 import random
 import string
 import logging
+import json
+import httplib2
+import requests
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
-import httplib2
-import json
 from flask import make_response
-import requests
-from sqlalchemy.ext.serializer import loads, dumps
 
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 from datetime import datetime
@@ -27,7 +29,7 @@ CLIENT_ID = json.loads(
 APPLICATION_NAME = "Android Events"
 
 
-# Connect to Database and create database session
+# Connect to database and create database session
 engine = create_engine('sqlite:///androidevents.db')
 Base.metadata.bind = engine
 
@@ -38,10 +40,10 @@ session = DBSession()
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
-    state = ''.join(random.choice(string.ascii_uppercase + string.digits) 
-        for x in xrange(32))
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
     login_session['state'] = state
-    # return "The current session state is %s" % login_session['state'] #Debug info
+    # return "The current session state: %s" % login_session['state'] #Debug
     return render_template('login.html', STATE=state)
 
 
@@ -72,7 +74,7 @@ def fbconnect():
     url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-    
+
     data = json.loads(result)
     login_session['provider'] = 'facebook'
     login_session['username'] = data["name"]
@@ -107,6 +109,7 @@ def fbconnect():
     flash("Now logged in as %s" % login_session['username'])
     return output
 
+
 # Logout from Facebook credentials
 @app.route('/fbdisconnect')
 def fbdisconnect():
@@ -120,7 +123,7 @@ def fbdisconnect():
 
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
@@ -222,9 +225,11 @@ def createUser(login_session):
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
 
+
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
+
 
 def getUserID(email):
     try:
@@ -275,19 +280,19 @@ def gdisconnect():
 @app.route('/city/<int:city_id>/event/JSON')
 def cityEventsJSON(city_id):
     city = session.query(City).filter_by(id=city_id).one()
-    
+
     events = session.query(Event).filter_by(
         city_id=city_id).all()
     events_to_serialize = [e.serialize for e in events]
     return jsonify(cityEvents=[city.serialize])
-    #return jsonify(events=[events_to_serialize]) # Works with backref in database_setup.py
+    # return jsonify(events=[events_to_serialize]) 
 
 
 # Return all cities and all events
 @app.route('/all-events/JSON')
 def allCitiesAndEventsJSON():
     #allCities = session.query(City).order_by(City.name)
-    #allEvents = session.query(Event).join(Event.city).all() 
+    #allEvents = session.query(Event).join(Event.city).all()
     city = session.query(City).all()
     return jsonify(allEvents=[c.serialize for c in city])
 
@@ -298,8 +303,8 @@ def allCitiesAndEventsXML():
     # Query to get data of interest
     city = session.query(City).all()
 
-    # Declare root node of XML 
-    top = Element('allEvents') 
+    # Declare root node of XML
+    top = Element('allEvents')
     comment = Comment('XML Response with all cities and events')
     top.append(comment)
 
@@ -312,7 +317,7 @@ def allCitiesAndEventsXML():
         child.text = c.name
         child = SubElement(event, 'state')
         child.text = c.state
-        eventInfo = SubElement(event, 'eventInfo') # Add new node for Events
+        eventInfo = SubElement(event, 'eventInfo')  # Add new node for Events
         for e in c.events:
             en = SubElement(eventInfo, 'event_name')
             en.text = e.name
@@ -330,7 +335,7 @@ def allCitiesAndEventsXML():
 @app.route('/city/')
 def showCities():
     cities = session.query(City).order_by(asc(City.name)) # ORIG
-    #cities = session.query(City)
+    # cities = session.query(City)
  
     # THIS WORKS!!!  
     q = session.query(City.id).subquery()
@@ -339,24 +344,24 @@ def showCities():
         join(Event.city).\
         group_by(City.name)      
     
-    #testq = subq.union(cities).order_by(asc(City.name))
+    # testq = subq.union(cities).order_by(asc(City.name))
 
     # For faceted UI, also display all events
     allEvents = session.query(Event).join(Event.city).order_by(Event.event_date.desc(), City.name, Event.name).all()
     app.logger.info(allEvents)
 
-
     cityCountTest1 = session.query(City.name, func.count(Event.city_id)).\
-        filter(Event.city_id ==\
-        session.query(City.id).\
-        join(Event.city)).\
-        group_by(City.name)
+                        filter(Event.city_id ==\
+                        session.query(City.id).\
+                        join(Event.city)).\
+                        group_by(City.name)
 
     theCityId = session.query(City.id).subquery('cid')
 
     test = session.query(City).join(Event.city)
 
-    cityCount = session.query(func.count(City.id)).scalar() # Returns total num of cities
+    # Returns total num of cities
+    cityCount = session.query(func.count(City.id)).scalar()
     app.logger.info(cityCount)
 
     # Test query
@@ -364,12 +369,12 @@ def showCities():
         filter(Event.city_id == '5'):
         app.logger.info(eventCountByCity)
 
+    return render_template('cities.html', allEvents=allEvents, 
+        cityCountTest=cityCountTest, test=test, cities=cities, 
+        cityCount=cityCount, eventCountByCity=eventCountByCity)
 
-    return render_template('cities.html', allEvents=allEvents, cityCountTest=cityCountTest, test=test, cities=cities, cityCount = cityCount, eventCountByCity=eventCountByCity)
 
-
-
-# Add a new City 
+# Add a new City
 @app.route('/city/new/', methods=['GET', 'POST'])
 def newCity():
     # Only logged in users can add data
@@ -377,7 +382,8 @@ def newCity():
         return redirect('/login')
 
     if request.method == 'POST':
-        newCity = City(name=request.form['city'], state=request.form['state'], user_id = login_session['user_id'])
+        newCity = City(name=request.form['city'], state=request.form['state'], 
+            user_id = login_session['user_id'])
         session.add(newCity)
         flash('New City "%s" Successfully Created' % newCity.name)
         session.commit()
@@ -393,10 +399,14 @@ def editCity(city_id):
     if 'username' not in login_session:
         return redirect('/login')
     if editedCity.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to edit this city.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('You are not \
+                authorized to edit this city.');}</script><body \
+                onload='myFunction()''>"
     if request.method == 'POST':
         if request.form['name']:
             editedCity.name = request.form['name']
+        if request.form['state']:
+            editedCity.state = request.form['state']
             flash('City Successfully Edited %s' % editedCity.name)
             return redirect(url_for('showCities'))
     else:
@@ -410,7 +420,9 @@ def deleteCity(city_id):
     if 'username' not in login_session:
         return redirect('/login')
     if cityToDelete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this city.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('You are not \
+                authorized to delete this city.');}</script><body \
+                onload='myFunction()''>"
     if request.method == 'POST':
         session.delete(cityToDelete)
         flash('%s Successfully Deleted' % cityToDelete.name)
@@ -423,7 +435,8 @@ def deleteCity(city_id):
 # Show all events in all cities
 @app.route('/all-events/')
 def showAllEvents():
-    allEvents = session.query(Event).join(Event.city).order_by(Event.event_date.desc(), City.name, Event.name).all()
+    allEvents = session.query(Event).join(Event.city).\
+    order_by(Event.event_date.desc(), City.name, Event.name).all()
     # app.logger.info(allEvents)
     return render_template('all-events.html', allEvents=allEvents)
 
@@ -437,12 +450,14 @@ def showEvent(city_id):
     # Filter display on right-hand panel to events in selected city
     city = session.query(City).filter_by(id=city_id).one() 
     # Get all events in selected city
-    events = session.query(Event).filter_by(city_id=city_id).order_by(desc(Event.event_date)).all()
+    events = session.query(Event).filter_by(city_id=city_id).\
+    order_by(desc(Event.event_date)).all()
     # Get count of events in selected city
     eventCountByCity = session.query(func.count(Event.city_id)).\
         filter(Event.city_id == city_id).\
         scalar()
-    return render_template('event.html', cities=cities, city=city, eventCountByCity=eventCountByCity, events=events)
+    return render_template('event.html', cities=cities, city=city, 
+        eventCountByCity=eventCountByCity, events=events)
 
 
 # Show event details  
@@ -469,8 +484,10 @@ def newEvent():
         dt = request.form['event_date']
         dt_obj = datetime.strptime(dt, '%Y-%m-%d')
         app.logger.info(dt_obj)
-        newEvent = Event(name=request.form['event'], description=request.form['description'], 
-            event_date=dt_obj, event_url=request.form['event_url'], image_url=request.form['image_url'],
+        newEvent = Event(name=request.form['event'], 
+            description=request.form['description'], 
+            event_date=dt_obj, event_url=request.form['event_url'], 
+            image_url=request.form['image_url'], 
             city_id=request.form['city_id'], user_id=login_session['user_id'])
         session.add(newEvent)
         session.commit()
@@ -493,7 +510,9 @@ def editEvent(event_id):
     #editedEvent1 = editedEvent
     # Events can only be edited by the user that submitted the event
     if editedEvent.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this event.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('You are not \
+                authorized to delete this event.');}</script><body \
+                onload='myFunction()''>"
     if request.method == 'POST':
         # Format event date before submitting to database
         if request.form['event_date']:
@@ -518,7 +537,8 @@ def editEvent(event_id):
         flash('Event Successfully Edited')
         return redirect(url_for('showEvent', city_id=editedEvent.city_id))
     else:
-        return render_template('editEvent.html', event_id=event_id, item=editedEvent, cities=cities)
+        return render_template('editEvent.html', event_id=event_id, 
+                item=editedEvent, cities=cities)
 
 
 # Delete an Event
@@ -528,7 +548,9 @@ def deleteEvent(event_id):
         return redirect('/login')
     eventToDelete = session.query(Event).filter_by(id=event_id).one()
     if eventToDelete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this event.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('You are not \
+                authorized to delete this event.');}</script><body \
+                onload='myFunction()''>"
     if request.method == 'POST':
         session.delete(eventToDelete)
         session.commit()
