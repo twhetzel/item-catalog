@@ -3,42 +3,30 @@
 {% include "header.html" %}
 
 <style>
-.demo-card-wide.mdl-card {
-  width: 312px;
-}
-.demo-card-wide > .mdl-card__title {
-  color: #fff;
-  height: 176px;
-  background: url('../assets/demos/welcome_card.jpg') center / cover;
-}
-.demo-card-wide > .mdl-card__menu {
-  color: #fff;
-}
 .demo-card-event.mdl-card {
-  width: 256px;
-  height: 256px;
-  background: #3E4EB8;
+  width: 512px;
+  background: #FFFFFF;
 }
 .demo-card-event > .mdl-card__actions {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: #B6B6B6;
 }
 .demo-card-event > .mdl-card__title {
   align-items: flex-start;
 }
 .demo-card-event > .mdl-card__title > h4 {
   margin-top: 0;
+  color: #388E3C;
+  font-weight: 500;
 }
 .demo-card-event > .mdl-card__actions {
   display: flex;
   box-sizing:border-box;
   align-items: center;
 }
-.demo-card-event > .mdl-card__title,
 .demo-card-event > .mdl-card__actions,
 .demo-card-event > .mdl-card__actions > .mdl-button {
-  color: #fff;
+  color: #536DFE;
 }
-
 .flash {
   background-color: #C8E6C9;
   color: #FFFFFF;
@@ -64,14 +52,14 @@
 </style>
 
 
-<div class="mdl-layout__content mdl-color-text--grey-700">
-<div class="mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
-  </br></br></br></br> 
-
-  <!-- Display flash message --> 
-  <section class="section--center mdl-grid mdl-grid--no-spacing">   
-  </br></br>
-    <div class="flash">
+<div class="mdl-demo mdl-color-text--grey-700 mdl-base">
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+<main class="mdl-layout__content"> 
+  <div class="mdl-layout__tab-panel is-active">
+    
+    <!-- Display flash message --> 
+    <section class="section--center mdl-grid mdl-grid--no-spacing">   
+    <div id="flashmessage" class="flash">
       {% with messages = get_flashed_messages() %}
       {% if messages %}
       <ul>
@@ -84,29 +72,31 @@
       <!-- Timeout flash message -->
       <script>$('#flashmessage').fadeOut(5000);</script>
     </div>
-  </section>
+    </section>
 
 
-  <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-    <header class="mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone">
-      <h3>Locations</h3>
-      {% for city in cities %}
-      <a href = "{{url_for('showEvent', city_id = city.id)}}">
-        <h4>{{city.name}}, {{city.state}}</h4>
-      </a>
-      {% endfor %}
+    <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+      <header class="mdl-cell mdl-color--green-50">   
+        <div class="mdl-card__supporting-text">
+          <h3>Locations</h3>
+          {% for city in cities %}
+          <a href = "{{url_for('showEvent', city_id = city.id)}}">
+          <h4>{{city.name}}, {{city.state}}</h4>
+          <br>
+          </a>
+          {% endfor %}
+        </div>     
+      </header>
+
+      <header>         
+        <div class="mdl-card__supporting-text">
+          <h3>All Events</h3>
+            {% for event in allEvents %}
+            <h4>{{event.name}} ({{event.city.name}})</h4>
+            {% endfor %}
+        </div> 
     </header>
-    <div class="mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone">
-      <div class="mdl-card__supporting-text">    
-        <!-- Show list of all Events -->
-        <h3>All Events</h3>
-        {% for event in allEvents %}
-        <h4>{{event.name}} ({{event.city.name}})</h4>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
+    </section>
 
   <!-- Show button to add new Event if logged in -->
   {%if 'username' in session %}
@@ -114,6 +104,9 @@
       <i class="material-icons">event</i>
     </a>
   {% endif %}
+
+  </div>
+</main>
 </div>
 </div>
 
