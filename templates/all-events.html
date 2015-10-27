@@ -45,11 +45,13 @@
                   {% endif %}
               </div>
               
+              <!-- Disable Share link 
               <div class="mdl-card__menu">
                 <button class="mdl-button mdl-button--colored mdl-button--icon mdl-js-button mdl-js-ripple-effect">
                   <i class="material-icons">share</i>
                 </button>
               </div>
+              -->
             </div>
             {% endfor %}
           </div>
@@ -58,12 +60,14 @@
        </section> 
     </div>
 </div>
-    <!-- Link doesn't work since City ID is needed -->
-    <!-- <a href="/newEvent.html" id="view-source" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">Add New Event</a> -->
+    
 
-    <a href="/newEvent.html" id="view-source" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
-      <i class="material-icons">add</i>
+  <!-- Show button to add new Event if logged in -->
+  {%if 'username' in session %}
+    <a href="{{url_for('newEvent')}}" id="view-source" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+      <i class="material-icons">event</i>
     </a>
+  {% endif %}
 
 
 {% endblock %}
