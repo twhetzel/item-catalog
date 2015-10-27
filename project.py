@@ -286,19 +286,16 @@ def gdisconnect():
 @app.route('/city/<int:city_id>/event/JSON')
 def cityEventsJSON(city_id):
     city = session.query(City).filter_by(id=city_id).one()
-
     events = session.query(Event).filter_by(
         city_id=city_id).all()
     events_to_serialize = [e.serialize for e in events]
     return jsonify(cityEvents=[city.serialize])
-    # return jsonify(events=[events_to_serialize]) 
 
 
 # Return all cities and all events
 @app.route('/all-events/JSON')
 def allCitiesAndEventsJSON():
-    #allCities = session.query(City).order_by(City.name)
-    #allEvents = session.query(Event).join(Event.city).all()
+    # Query to get data of interest
     city = session.query(City).all()
     return jsonify(allEvents=[c.serialize for c in city])
 
@@ -340,31 +337,31 @@ def allCitiesAndEventsXML():
     return app.response_class(tostring(top), mimetype='application/xml')
 
 
-# Show all locations
+# Display all cities 
 @app.route('/')
 @app.route('/city/')
 def showCities():
-    cities = session.query(City).order_by(asc(City.name)) # ORIG
-    # cities = session.query(City)
+    # List all cities (data for left-hand card panel)
+    cities = session.query(City).order_by(asc(City.name))
+
+    # List all events (data for right-hand card panel)
+    allEvents = session.query(Event).join(Event.city).\
+                order_by(Event.event_date.desc(), City.name, Event.name).all()
+    
  
-    # THIS WORKS!!!  
+    # Subquery to get count of events in each city
     q = session.query(City.id).subquery()
     cityCountTest = session.query(City.id, City.name, func.count(Event.city_id)).\
         filter(Event.city_id.in_(q)).\
         join(Event.city).\
         group_by(City.name)      
     
-    # testq = subq.union(cities).order_by(asc(City.name))
-
-    # For faceted UI, also display all events
-    allEvents = session.query(Event).join(Event.city).order_by(Event.event_date.desc(), City.name, Event.name).all()
-    app.logger.info(allEvents)
-
+    
     cityCountTest1 = session.query(City.name, func.count(Event.city_id)).\
-                        filter(Event.city_id ==\
-                        session.query(City.id).\
-                        join(Event.city)).\
-                        group_by(City.name)
+                    filter(Event.city_id ==\
+                    session.query(City.id).\
+                    join(Event.city)).\
+                    group_by(City.name)
 
     theCityId = session.query(City.id).subquery('cid')
 
@@ -379,9 +376,7 @@ def showCities():
         filter(Event.city_id == '5'):
         app.logger.info(eventCountByCity)
 
-    return render_template('cities.html', allEvents=allEvents, 
-        cityCountTest=cityCountTest, test=test, cities=cities, 
-        cityCount=cityCount, eventCountByCity=eventCountByCity)
+    return render_template('cities.html', cities=cities, allEvents=allEvents)
 
 
 # Add a new City
@@ -406,12 +401,15 @@ def newCity():
 @app.route('/city/<int:city_id>/edit/', methods=['GET', 'POST'])
 def editCity(city_id):
     editedCity = session.query(City).filter_by(id=city_id).one()
+    # Only logged in users can edit a city
     if 'username' not in login_session:
         return redirect('/login')
+    # Only user that submitted city can edit the city information
     if editedCity.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('You are not \
                 authorized to edit this city.');}</script><body \
                 onload='myFunction()''>"
+    # Submit edits of city data
     if request.method == 'POST':
         if request.form['name']:
             editedCity.name = request.form['name']
@@ -427,12 +425,15 @@ def editCity(city_id):
 @app.route('/city/<int:city_id>/delete/', methods=['GET', 'POST'])
 def deleteCity(city_id):
     cityToDelete = session.query(City).filter_by(id=city_id).one()
+    # Only logged in users can delete a city
     if 'username' not in login_session:
         return redirect('/login')
+    # Only user that submitted city can delete the city information
     if cityToDelete.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('You are not \
                 authorized to delete this city.');}</script><body \
                 onload='myFunction()''>"
+    # Submit request to delete city
     if request.method == 'POST':
         session.delete(cityToDelete)
         flash('%s Successfully Deleted' % cityToDelete.name)
@@ -442,12 +443,11 @@ def deleteCity(city_id):
         return render_template('deleteCity.html', cityToDelete=cityToDelete)
 
 
-# Show all events in all cities
+# Show all events in all cities (available from navigation menu)
 @app.route('/all-events/')
 def showAllEvents():
     allEvents = session.query(Event).join(Event.city).\
     order_by(Event.event_date.desc(), City.name, Event.name).all()
-    # app.logger.info(allEvents)
     return render_template('all-events.html', allEvents=allEvents)
 
 
@@ -455,17 +455,20 @@ def showAllEvents():
 @app.route('/city/<int:city_id>/')
 @app.route('/city/<int:city_id>/event/')
 def showEvent(city_id):
-    # Display all cities in left-hand panel
-    cities = session.query(City).order_by(asc(City.name)) 
-    # Filter display on right-hand panel to events in selected city
+    # List all cities (data for left-hand card panel)
+    cities = session.query(City).order_by(asc(City.name))
+
+    # Filter display in right-hand panel to events in selected city
     city = session.query(City).filter_by(id=city_id).one() 
+    
     # Get all events in selected city
     events = session.query(Event).filter_by(city_id=city_id).\
-    order_by(desc(Event.event_date)).all()
+            order_by(desc(Event.event_date)).all()
+    
     # Get count of events in selected city
     eventCountByCity = session.query(func.count(Event.city_id)).\
-        filter(Event.city_id == city_id).\
-        scalar()
+                        filter(Event.city_id == city_id).\
+                        scalar()
     return render_template('event.html', cities=cities, city=city, 
         eventCountByCity=eventCountByCity, events=events)
 
@@ -480,20 +483,20 @@ def showEventDetails(city_id, event_id):
     return render_template('eventDetails.html', city=city, event=event)
 
 
-# Create a new Event in a City #TODO: Update similar to course example!
+# Create a new event in a city 
 @app.route('/event/new/', methods=['GET', 'POST'])
 def newEvent():
-    # Query all locations to populate select menu in form
+    # Query all city locations to populate select menu in form
     locations = session.query(City).all()
     # Only logged in users can add data 
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-        app.logger.info(request.form['event_date'])
         # Format date value before submitting to database
         dt = request.form['event_date']
         dt_obj = datetime.strptime(dt, '%Y-%m-%d')
-        app.logger.info(dt_obj)
+        
+        # Create event object based on form data
         newEvent = Event(name=request.form['event'], 
             description=request.form['description'], 
             event_date=dt_obj, event_url=request.form['event_url'], 
@@ -501,7 +504,6 @@ def newEvent():
             city_id=request.form['city_id'], user_id=login_session['user_id'])
         session.add(newEvent)
         session.commit()
-        app.logger.info(newEvent.city_id)
         flash('New Event "%s" Successfully Created' % (newEvent.name))
         return redirect(url_for('showEvent', city_id=newEvent.city_id))
     else: 
@@ -511,18 +513,19 @@ def newEvent():
 # Edit an Event
 @app.route('/event/<int:event_id>/edit', methods=['GET', 'POST'])
 def editEvent(event_id):
+    # Only logged in users can edit an event
     if 'username' not in login_session:
         return redirect('/login')
     # Get list of all cities to display in select menu
     cities = session.query(City).order_by(asc(City.name))   
     # Get Event information for event of interest 
     editedEvent = session.query(Event).filter_by(id=event_id).one()
-    #editedEvent1 = editedEvent
     # Events can only be edited by the user that submitted the event
     if editedEvent.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('You are not \
                 authorized to delete this event.');}</script><body \
                 onload='myFunction()''>"
+    # Submit edits of event data
     if request.method == 'POST':
         # Format event date before submitting to database
         if request.form['event_date']:
@@ -554,13 +557,16 @@ def editEvent(event_id):
 # Delete an Event
 @app.route('/event/<int:event_id>/delete', methods=['GET', 'POST'])
 def deleteEvent(event_id):
+    # Only logged in users can delete an event
     if 'username' not in login_session:
         return redirect('/login')
     eventToDelete = session.query(Event).filter_by(id=event_id).one()
+    # Only user that submitted event can delete their event
     if eventToDelete.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('You are not \
                 authorized to delete this event.');}</script><body \
                 onload='myFunction()''>"
+    # Submit request to delete event
     if request.method == 'POST':
         session.delete(eventToDelete)
         session.commit()
