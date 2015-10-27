@@ -29,11 +29,19 @@
   color: #536DFE;
 }
 
+.horizontal-image {
+      padding: 6px;
+      margin: auto;
+      background-position: center;
+      width: 300px;
+    }
+
 .square-image {
       padding: 6px;
       margin: auto;
       background-position: center;
       object-fit: contain;
+      width: 400px;
     }
 </style>
 
@@ -41,9 +49,11 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 <main class="mdl-layout__content"> 
   <div class="mdl-layout__tab-panel is-active">
+
+   <!-- 
    <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
         <header class="mdl-cell mdl-color--green-50">
-          <img src="{{event.image_url}}" class="square-image"/>
+          <img src="{{event.image_url}}" class="horizontal-image"/>
         </header>
         <div class="mdl-card demo-card-event">
           <div class="mdl-card__title mdl-card--expand">
@@ -56,9 +66,10 @@
             Location: {{event.city.name}} | Date: {{event.event_date}}
             </div>
           </div>
+
           <div class="mdl-card__actions mdl-card--border">
             <a href="{{event.event_url}}" target="_blank" class="mdl-button mdl-button--colored">View Event Site</a>
-              <!-- Show Edit and Delete buttons if logged in --> 
+               
               {%if 'username' in session %} 
                 <div class="mdl-layout-spacer"></div>
                   <a href="{{url_for('editEvent', event_id=event.id)}}" class="mdl-button mdl-js-button mdl-button--colored" id="edit-event">
@@ -76,15 +87,14 @@
               </button>
             </div>
       </section>
-
-
       <br><br>
+   -->   
 
     <section class="section--center mdl-grid mdl-grid--no-spacing">
           <!-- Display Event details -->
           <div class="mdl-grid">  
             <div class="demo-card-event mdl-card mdl-cell mdl-cell--12-col mdl-shadow--2dp">
-              <img src="{{event.image_url}}" class="square-image" width="400px"/>
+              <img src="{{event.image_url}}" class="square-image"/>
               <div class="mdl-card__title mdl-card--expand">
                 <h4 class="mdl-card__title-text">{{event.name}}</h4>
               </div>
@@ -107,11 +117,13 @@
                   </a>
                   {% endif %}
               </div> 
+              <!--
               <div class="mdl-card__menu">
                 <button class="mdl-button mdl-button--colored mdl-button--icon mdl-js-button mdl-js-ripple-effect">
                   <i class="material-icons">share</i>
                 </button>
               </div>
+              -->
             </div>
           </div>
        </section> 
