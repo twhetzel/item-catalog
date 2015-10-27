@@ -27,18 +27,6 @@
 .demo-card-event > .mdl-card__actions > .mdl-button {
   color: #536DFE;
 }
-.flash {
-  background-color: #C8E6C9;
-  color: #FFFFFF;
-  margin: auto;
-  width:60%;
-  text-decoration: none;
-}
-.flashli {
-  color: #FFFFFF;
-  list-style-type: none;
-  text-align: center;
-}
 
 #view-source {
   position: fixed;
@@ -64,13 +52,13 @@
       {% if messages %}
       <ul>
         {% for message in messages %}
-        <li class="flashli"> <strong> {{ message }} </strong> </li>
+        <li> <strong> {{ message }} </strong> </li>
         {% endfor %}
       </ul>
       {% endif %}
       {% endwith %}
       <!-- Timeout flash message -->
-      <script>$('#flashmessage').fadeOut(5000);</script>
+      <script>$('#flashmessage').fadeOut(3000);</script>
     </div>
     </section>
 
@@ -92,7 +80,9 @@
         <div class="mdl-card__supporting-text">
           <h3>All Events</h3>
             {% for event in allEvents %}
-            <h4>{{event.name}} ({{event.city.name}})</h4>
+            <a href = "{{url_for('showEventDetails', city_id = event.city.id, event_id=event.id)}}">
+              <h4>{{event.name}} ({{event.city.name}})</h4>
+            </a>
             {% endfor %}
         </div> 
     </header>
