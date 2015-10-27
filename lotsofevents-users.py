@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import City, Base, Event, User
+from datetime import datetime, date
  
 engine = create_engine('sqlite:///androidevents.db')
 # Bind the engine to the metadata of the Base class so that the
@@ -28,15 +32,20 @@ print allCityNames
 allEventNames = session.query(Event.city_id).all()
 print allEventNames
 
+# Drop tables in case columns have changed during development  
+# Base.metadata.drop_all(engine)
 
-# Clear database tables - City and Event and User
+# Confirm table columns
+# print Event.__table__.columns.keys()
+
+# Clear database tables - City, Event, User
 session.query(User).delete()
 session.query(City).delete()
 session.query(Event).delete()
 session.commit()
 
 
-# Create dummy user
+# Create initial user for adding data
 User1 = User(name="TW", email="plwhetzel@gmail.com",
              picture='https://lh6.googleusercontent.com/-VnxWuzSW494/UEiyeA06zoI/AAAAAAAAWtU/LOxkmbmhFV8/w461-h460/photo-7c.png')
 session.add(User1)
@@ -46,279 +55,145 @@ print User1.name
 
 # City info for San Francisco
 city1 = City(user_id=1, name = "San Francisco", state="California")
-
 session.add(city1)
 session.commit()
 
 
-event1 = Event(user_id=1, name = "Droidcon San Francisco 2015", description = "The droidcon conferences around the world support the Android platform and create a global network for developers and companies. We offer best-in-class presentations from leaders in all parts of the Android ecosystem, including core development, embedded solutions augmented reality, business solutions and games.", city = city1)
-
+event1 = Event(user_id=1, name = "Droidcon San Francisco 2016", 
+	description = "The droidcon conferences around the world support the \
+	Android platform and create a global network for developers and \
+	companies. We offer best-in-class presentations from leaders in all \
+	parts of the Android ecosystem, including core development, embedded \
+	solutions augmented reality, business solutions and games.", 
+	city = city1, 
+	event_date=date(2016, 3, 17), 
+	event_url="http://sf.droidcon.com/", 
+	image_url="https://embed.gyazo.com/11e1eaa28bf28afaa3a1f235b5f985e6.png")
 session.add(event1)
 session.commit()
 
-event2 = Event(user_id=1, name = "SF Android User Group", description = "We are an interactive group of Android developers and contractors discussing trends in technology, business, and job outlook.", city = city1)
 
+event2 = Event(user_id=1, name = "SF Android User Group", 
+	description = "We are an interactive group of Android developers and \
+	contractors discussing trends in technology, business, and job outlook.", 
+	city = city1, 
+	event_date=date(2015, 10, 27), 
+	event_url='http://www.meetup.com/sfandroid/', 
+	image_url="http://img2.meetupstatic.com/img/8308650022681532654/header/logo-2x.png")
 session.add(event2)
 session.commit()
 
-# menuItem3 = MenuItem(name = "Chocolate Cake", description = "fresh baked and served with ice cream", price = "$3.99", course = "Dessert", restaurant = restaurant1)
 
-# session.add(menuItem3)
-# session.commit()
+event3 = Event(user_id=1, name = "Advanced Android Espresso", 
+	description = "Espresso is a very powerful UI testing framework. Attend \
+	this meetup to learn the following techniques to get the most out of it.", 
+	city = city1, 
+	event_date=date(2015, 11, 30), 
+	event_url='http://www.meetup.com/bayareaandroid/events/226197227/', 
+	image_url="http://img2.meetupstatic.com/img/8308650022681532654/header/logo-2x.png")
+session.add(event3)
+session.commit()
 
-# menuItem4 = MenuItem(name = "Sirloin Burger", description = "Made with grade A beef", price = "$7.99", course = "Entree", restaurant = restaurant1)
 
-# session.add(menuItem4)
-# session.commit()
+event4 = Event(user_id=1, name = "Persistent Queues with Tape", 
+	description = "Processing background tasks in Android apps can be tricky. \
+	You need to think about cases such as low memory situations, running \
+	out of battery and flaky networks. Persisting tasks to disk helps you \
+	reliably handle such edge cases. Enter Tape, a collection of queue \
+	related classes. This talk will be primarily about it''s core component, \
+	QueueFile a lightning fast, transactional, persistent file-based FIFO. \
+	For new users, we''ll compare it to alternatives and dig into it''s API \
+	with real world examples. For veterans, we''ll take a deep dive into it's \
+	technical implementation and see how it guarantees both reliability and \
+	efficiency.", 
+	city = city1, 
+	event_date=date(2015, 10, 27), 
+	event_url='http://www.meetup.com/sfandroid/events/226198822/', 
+	image_url="http://img2.meetupstatic.com/img/8308650022681532654/header/logo-2x.png")
+session.add(event4)
+session.commit()
 
-# menuItem5 = MenuItem(name = "Root Beer", description = "16oz of refreshing goodness", price = "$1.99", course = "Beverage", restaurant = restaurant1)
 
-# session.add(menuItem5)
-# session.commit()
+event5 = Event(user_id=1, name = "Android Development Like a Pro", 
+	description = "The Android SDK has changed much since its first version. \
+	Every new version comes with many new APIs. However, there is no perfect \
+	API, some do too much under the hood, others couple your classes to the \
+	context, others have more lifecycle events than you have years in your \
+	life. The talk will show how to make your app scalable, your code clean, \
+	your performance optimized and your UI neat. The talk will show in a \
+	pragmatic way the pros and cons of using certain Android APIs, strategies \
+	and libraries. It will touch on Fragments, Loaders, AsyncTasks, OOP \
+	patterns (mvp vs mvvm vs viper) and styling. This talk is a compendium of \
+	my experience in large code bases since I started to work in Android in \
+	2009.", 
+	city = city1, 
+	event_date=date(2015, 9, 29), 
+	event_url='http://www.meetup.com/sfandroid/events/224952292/', 
+	image_url="http://img2.meetupstatic.com/img/8308650022681532654/header/logo-2x.png")
+session.add(event5)
+session.commit()
 
-# menuItem6 = MenuItem(name = "Iced Tea", description = "with Lemon", price = "$.99", course = "Beverage", restaurant = restaurant1)
 
-# session.add(menuItem6)
-# session.commit()
-
-# menuItem7 = MenuItem(name = "Grilled Cheese Sandwich", description = "On texas toast with American Cheese", price = "$3.49", course = "Entree", restaurant = restaurant1)
-
-# session.add(menuItem7)
-# session.commit()
-
-# menuItem8 = MenuItem(name = "Veggie Burger", description = "Made with freshest of ingredients and home grown spices", price = "$5.99", course = "Entree", restaurant = restaurant1)
-
-# session.add(menuItem8)
-# session.commit()
+event6 = Event(user_id=1, name = "Android Speech Recognition APIs", 
+	description = "This class will provide an overview of the current state \
+	of the art regarding voice recognition for Android, the most popular \
+	APIs, their limitations and special features. After the introduction, \
+	there will be a coding tutorial using code samples. You will be able to \
+	follow the instructor to implement together a working voice recognition \
+	application. The focus will be on voice commands as opposed to dictation.", 
+	city = city1, 
+	event_date=date(2015, 8, 11), 
+	event_url='http://www.meetup.com/sfandroid/events/224952292/', 
+	image_url="http://img2.meetupstatic.com/img/8308650022681532654/header/logo-2x.png")
+session.add(event6)
+session.commit()
 
 
 
 # City info for New York
 city2 = City(name = "New York", state="New York", user_id=1)
-
 session.add(city2)
 session.commit()
 
 
-event1 = Event(user_id=1, name = "Droidcon New York 2015", description = "The Droidcon conferences around the world support the Android platform and create a global network for developers and companies. We offer best-in-class presentations from leaders in all parts of the Android ecosystem, including core development, embedded solutions augmented reality, business solutions and games.", city = city2)
-
+event1 = Event(user_id=1, name = "Droidcon New York 2015", 
+	description = "The Droidcon conferences around the world support the \
+	Android platform and create a global network for developers and \
+	companies. We offer best-in-class presentations from leaders in all \
+	parts of the Android ecosystem, including core development, embedded \
+	solutions augmented reality, business solutions and games.", 
+	city = city2, 
+	event_date=date(2015, 8, 27), 
+	event_url='http://droidcon.nyc/2015/', 
+	image_url="http://i28.photobucket.com/albums/c218/TanyaKarsou/EBHeader_960x350FNL_zpshqud9wxt.png")
 session.add(event1)
 session.commit()
 
-# menuItem2 = MenuItem(name = "Peking Duck", description = " a famous duck dish from Beijing[1] that has been prepared since the imperial era. The meat is prized for its thin, crisp skin, with authentic versions of the dish serving mostly the skin and little meat, sliced in front of the diners by the cook", price = "$25", course = "Entree", restaurant = restaurant2)
 
-# session.add(menuItem2)
-# session.commit()
-
-# menuItem3 = MenuItem(name = "Spicy Tuna Roll", description = "", price = "", course = "", restaurant = restaurant2)
-
-# session.add(menuItem3)
-# session.commit()
-
-# menuItem4 = MenuItem(name = "Nepali Momo ", description = "", price = "", course = "", restaurant = restaurant2)
-
-# session.add(menuItem4)
-# session.commit()
-
-# menuItem5 = MenuItem(name = "Beef Noodle Soup", description = "", price = "", course = "", restaurant = restaurant2)
-
-# session.add(menuItem5)
-# session.commit()
-
-# menuItem6 = MenuItem(name = "Ramen", description = "", price = "", course = "", restaurant = restaurant2)
-
-# session.add(menuItem6)
-# session.commit()
-
-
-
-
-# #Menu for Panda Garden
-# restaurant1 = Restaurant(name = "Panda Garden")
-
-# session.add(restaurant1)
-# session.commit()
-
-
-# menuItem1 = MenuItem(name = "Pho", description = "a Vietnamese noodle soup consisting of broth, linguine-shaped rice noodles called banh pho, a few herbs, and meat.", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem1)
-# session.commit()
-
-# menuItem2 = MenuItem(name = "Chinese Dumplings", description = "a common Chinese dumpling which generally consists of minced meat and finely chopped vegetables wrapped into a piece of dough skin. The skin can be either thin and elastic or thicker.", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem2)
-# session.commit()
-
-# menuItem3 = MenuItem(name = "Gyoza", description = "The most prominent differences between Japanese-style gyoza and Chinese-style jiaozi are the rich garlic flavor, which is less noticeable in the Chinese version, the light seasoning of Japanese gyoza with salt and soy sauce, and the fact that gyoza wrappers are much thinner", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem3)
-# session.commit()
-
-# menuItem4 = MenuItem(name = "Stinky Tofu", description = "Taiwanese dish, deep fried fermented tofu served with pickled cabbage.", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem4)
-# session.commit()
-
-
-
-# #Menu for Thyme for that
-# restaurant1 = Restaurant(name = "Thyme for That Vegetarian Cuisine ")
-
-# session.add(restaurant1)
-# session.commit()
-
-
-# menuItem1 = MenuItem(name = "Tres Leches Cake", description = "Rich, luscious sponge cake soaked in sweet milk and topped with vanilla bean whipped cream and strawberries.", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem1)
-# session.commit()
-
-# menuItem2 = MenuItem(name = "Mushroom risotto", description = "Portabello mushrooms in a creamy risotto", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem2)
-# session.commit()
-
-# menuItem3 = MenuItem(name = "Honey Boba Shaved Snow", description = "Milk snow layered with honey boba, jasmine tea jelly, grass jelly, caramel, cream, and freshly made mochi", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem3)
-# session.commit()
-
-# menuItem4 = MenuItem(name = "Cauliflower Manchurian", description = "Golden fried cauliflower florets in a midly spiced soya,garlic sauce cooked with fresh cilantro, celery, chilies,ginger & green onions", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem4)
-# session.commit()
-
-# menuItem5 = MenuItem(name = "Aloo Gobi Burrito", description = "Vegan goodness. Burrito filled with rice, garbanzo beans, curry sauce, potatoes (aloo), fried cauliflower (gobi) and chutney. Nom Nom", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem5)
-# session.commit()
-
-
-
-
-# #Menu for Tony's Bistro
-# restaurant1 = Restaurant(name = "Tony\'s Bistro ")
-
-# session.add(restaurant1)
-# session.commit()
-
-
-# menuItem1 = MenuItem(name = "Shellfish Tower", description = "", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem1)
-# session.commit()
-
-# menuItem2 = MenuItem(name = "Chicken and Rice", description = "", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem2)
-# session.commit()
-
-# menuItem3 = MenuItem(name = "Mom's Spaghetti", description = "", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem3)
-# session.commit()
-
-# menuItem4 = MenuItem(name = "Choc Full O\' Mint (Smitten\'s Fresh Mint Chip ice cream)", description = "", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem4)
-# session.commit()
-
-# menuItem5 = MenuItem(name = "Tonkatsu Ramen", description = "Noodles in a delicious pork-based broth with a soft-boiled egg", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem5)
-# session.commit()
-
-
-
-
-# #Menu for Andala's 
-# restaurant1 = Restaurant(name = "Andala\'s")
-
-# session.add(restaurant1)
-# session.commit()
-
-
-# menuItem1 = MenuItem(name = "Lamb Curry", description = "Slow cook that thang in a pool of tomatoes, onions and alllll those tasty Indian spices. Mmmm.", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem1)
-# session.commit()
-
-# menuItem2 = MenuItem(name = "Chicken Marsala", description = "Chicken cooked in Marsala wine sauce with mushrooms", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem2)
-# session.commit()
-
-# menuItem3 = MenuItem(name = "Potstickers", description = "Delicious chicken and veggies encapsulated in fried dough.", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem3)
-# session.commit()
-
-# menuItem4 = MenuItem(name = "Nigiri SamplerMaguro, Sake, Hamachi, Unagi, Uni, TORO!", description = "", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem4)
-# session.commit()
-
-
-
-
-# #Menu for Auntie Ann's
-# restaurant1 = Restaurant(name = "Auntie Ann\'s Diner ")
-
-# session.add(restaurant1)
-# session.commit()
-
-# menuItem9 = MenuItem(name = "Chicken Fried Steak", description = "Fresh battered sirloin steak fried and smothered with cream gravy", price = "$8.99", course = "Entree", restaurant = restaurant1)
-
-# session.add(menuItem9)
-# session.commit()
-
-
-
-# menuItem1 = MenuItem(name = "Boysenberry Sorbet", description = "An unsettlingly huge amount of ripe berries turned into frozen (and seedless) awesomeness", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem1)
-# session.commit()
-
-# menuItem2 = MenuItem(name = "Broiled salmon", description = "Salmon fillet marinated with fresh herbs and broiled hot & fast", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem2)
-# session.commit()
-
-# menuItem3 = MenuItem(name = "Morels on toast (seasonal)", description = "Wild morel mushrooms fried in butter, served on herbed toast slices", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem3)
-# session.commit()
-
-# menuItem4 = MenuItem(name = "Tandoori Chicken", description = "Chicken marinated in yoghurt and seasoned with a spicy mix(chilli, tamarind among others) and slow cooked in a cylindrical clay or metal oven which gets its heat from burning charcoal.", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem4)
-# session.commit()
-
-
-
-
-# #Menu for Cocina Y Amor
-# restaurant1 = Restaurant(name = "Cocina Y Amor ")
-
-# session.add(restaurant1)
-# session.commit()
-
-
-# menuItem1 = MenuItem(name = "Super Burrito Al Pastor", description = "Marinated Pork, Rice, Beans, Avocado, Cilantro, Salsa, Tortilla", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem1)
-# session.commit()
-
-# menuItem2 = MenuItem(name = "Cachapa", description = "Golden brown, corn-based venezuelan pancake; usually stuffed with queso telita or queso de mano, and possibly lechon. ", price = "", course = "", restaurant = restaurant1)
-
-# session.add(menuItem2)
-# session.commit()
-
+# City info for Dallas
+city3 = City(name = "Dallas", state="Texas", user_id=1)
+session.add(city3)
+session.commit()
+
+event1 = Event(user_id=1, name = "Big Android BBQ", 
+	description = "The Droidcon conferences around the world support the \
+	Android platform and create a global network for developers and \
+	companies. We offer best-in-class presentations from leaders in all \
+	parts of the Android ecosystem, including core development, embedded \
+	solutions augmented reality, business solutions and games.", 
+	city = city3, 
+	event_date=date(2015, 10, 22), 
+	event_url='http://www.bigandroidbbq.com/index.html', 
+	image_url="http://www.bigandroidbbq.com/images/babbq15_logo.svg")
+session.add(event1)
+session.commit()
+
+
+
+# Debug statements to confirm data entry
 print "Added cities and events and users!"
-
 allEvents = session.query(Event).join(Event.city).order_by(City.name, Event.name).all()
-print allEvents[0].user_id
+print allEvents[0].user_id, allEvents[0].event_date
 
 
 
