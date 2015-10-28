@@ -1,8 +1,7 @@
 # Android Events Catalog
 
 ## Introduction
-This project is an example of an Item Catalog for Project 3 for the Udacity FSND.
-. It lists cities and events in each city. This project is developed for Python 2.7.
+This project is an example of an Item Catalog for Project 3 for the Udacity FSND. It lists cities and events in each city. This project is developed for Python 2.7.
 
 ## Requirements
 Flask == 0.9<br>
