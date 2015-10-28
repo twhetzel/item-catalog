@@ -1,9 +1,21 @@
-# item-catalog
-Project 3 for the Udacity FSND.
+# Android Events Catalog
 
-This project is an example of an Item Catalog. It lists cities and events in each city. The data is stored in a sqlite database. To create the database, run: python database_setup.py  To load the database, run: python lotsofevents-users.py  The website can be viewed at: localhost:8000 after running python project.py.
+## Introduction
+This project is an example of an Item Catalog for Project 3 for the Udacity FSND.
+. It lists cities and events in each city. This project is developed for Python 2.7.
 
-Data can be added and edited by logged in users. Data is also accessible via a JSON [1] and XML [2] endpoint.
+## Requirements
+Flask == 0.9
+SQLAlchemy == 1.0.7
+SeaSurf == 0.1.21
+For easy installation, run pip istall -r requirements.txt. Note, you may need to run as root using sudo.
 
+## Set-up
+The data is stored in a sqlite database. To create the database, run: python database_setup.py  To load the database, run: python lotsofevents-users.py  
+
+## Usage
+The website can be viewed at: localhost:8000 after running python project.py. New events can be added, edited, and deleted by logged in users. Data is also accessible via a JSON [1] and XML [2] endpoint.
+<br>
 [1] http://localhost:8000/all-events/JSON
+<br>
 [2] http://localhost:8000/all-events/XML
