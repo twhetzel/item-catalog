@@ -351,16 +351,16 @@ def showCities():
  
     # Subquery to get count of events in each city
     q = session.query(City.id).subquery()
-    cityCountTest = session.query(City.id, City.name, func.count(Event.city_id)).
-        filter(Event.city_id.in_(q)).
-        join(Event.city).
+    cityCountTest = session.query(City.id, City.name, func.count(Event.city_id)).\
+        filter(Event.city_id.in_(q)).\
+        join(Event.city).\
         group_by(City.name)      
     
     
-    cityCountTest1 = session.query(City.name, func.count(Event.city_id)).
+    cityCountTest1 = session.query(City.name, func.count(Event.city_id)).\
                     filter(Event.city_id ==\
-                    session.query(City.id).
-                    join(Event.city)).
+                    session.query(City.id).\
+                    join(Event.city)).\
                     group_by(City.name)
 
     theCityId = session.query(City.id).subquery('cid')
@@ -372,7 +372,7 @@ def showCities():
     app.logger.info(cityCount)
 
     # Test query
-    for eventCountByCity in session.query(func.count(Event.city_id)).
+    for eventCountByCity in session.query(func.count(Event.city_id)).\
         filter(Event.city_id == '5'):
         app.logger.info(eventCountByCity)
 
@@ -411,6 +411,7 @@ def editCity(city_id):
                 onload='myFunction()''>"
     # Submit edits of city data
     if request.method == 'POST':
+        app.logger.info('POST request called')
         if request.form['name']:
             editedCity.name = request.form['name']
         if request.form['state']:
