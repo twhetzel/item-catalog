@@ -12,7 +12,8 @@
 				</div>				
 
 				<div class="row">
-					<form action="{{ url_for('editCity',city_id = city.id)}}" method = "post">
+					<form action="#" method = "post">
+						<div class="form-group">
 						<div class="mdl-textfield mdl-js-textfield">
 							<label class="mdl-textfield__label" for="name">Name:</label>
 							<input class="mdl-textfield__input" type ="text" class="form-control" name="name" value="{{city.name }}">
@@ -23,12 +24,18 @@
 							<input class="mdl-textfield__input" type ="text" class="form-control" name="state" value="{{city.state }}">
 						</div>
 						<div class="padding-bottom"></div>
-						<button type="submit" class="btn btn-default" id="submit" type="submit">
-							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>Save</button>
-							<a href = '{{url_for('showCities')}}'>
-						<button class="btn btn-default delete">
-							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
-							</a>
+						
+						<button type="submit" class="btn btn-default mdl-button mdl-js-button mdl-button--colored" id="submit" type="submit">
+							<i class="material-icons" aria-hidden="true">save</i>Save
+						</button>
+
+
+						<a href="{{url_for('showCities')}}">
+							<button type="button" class="btn btn-default mdl-button mdl-js-button mdl-button--colored">
+								<i class="material-icons" aria-hidden="true">cancel</i> Cancel
+							</button>
+						</a>
+					</div>
 						<!-- Prevent cross-site request forgery -->
 						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 					</form>
