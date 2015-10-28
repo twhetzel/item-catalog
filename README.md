@@ -7,7 +7,7 @@ This project is an example of an Item Catalog for Project 3 for the Udacity FSND
 Flask == 0.9<br>
 SQLAlchemy == 1.0.7<br>
 SeaSurf == 0.1.21<br>
-For easy installation, run pip istall -r requirements.txt. Note, you may need to run as root using sudo.
+For easy installation, run pip install -r requirements.txt. Note, you may need to run as root using sudo.
 
 ## Set-up
 The data is stored in a sqlite database. To create the database, run: python database_setup.py  To load the database, run: python lotsofevents-users.py  
