@@ -4,9 +4,9 @@
 This project is an example of an Item Catalog for Project 3 for the Udacity FSND. It lists cities and events in each city. This project is developed using Python 2.7. It is based on the OAuth sample from Udacity https://github.com/udacity/OAuth2.0
 
 ## Requirements
-Flask == 0.9
-SQLAlchemy == 1.0.7
-SeaSurf == 0.1.21
+Flask == 0.9<br>
+SQLAlchemy == 1.0.7<br>
+SeaSurf == 0.1.21<br>
 For easy installation, run pip install -r requirements.txt. Note, you may need to run this as root using sudo.
 
 ## Set-up
