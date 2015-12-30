@@ -35,9 +35,19 @@ The website can be viewed at: localhost:8000. New events can be added, edited, a
 
 # Screenshots
 Home page <br>
-![Alt text](https://github.com/twhetzel/item-catalog/blob/master/readme-images/home.png "Home page")
+![Alt text](readme-images/home.png "Home page")
 
 <br><br>
  
 Event Details <br>
 ![Alt Text](readme-images/eventDetails.png "Event Details")
+
+<br><br>
+
+Add New Event<br>
+![Alt Text](readme-images/AddNewEvent.png "Add New Event")
+
+<br><br>
+
+Navigation Drawer<br>
+![Alt Text](readme-images/drawer.png "Navigation Drawer")
