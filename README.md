@@ -34,6 +34,6 @@ The website can be viewed at: localhost:8000. New events can be added, edited, a
 [2] http://localhost:8000/all-events/XML
 
 # Screenshots
-Home page
-![Alt text](https://github.com/twhetzel/item-catalog/blob/master/readme-images/home.tiff "Home page")
+Home page <br>
+![Alt text](https://github.com/twhetzel/item-catalog/blob/master/readme-images/home.png "Home page")
  
