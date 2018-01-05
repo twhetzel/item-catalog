@@ -1,25 +1,28 @@
 # Android Events Catalog
 
 ## Introduction
-This project is an example of an Item Catalog for Project 3 for the Udacity FSND. It lists cities and events in each city. This project is developed using Python 2.7. It is based on the OAuth sample from Udacity https://github.com/udacity/OAuth2.0
+This project is an example of an Item Catalog built during the Udacity FSND. It lists cities and events in each city. This project is developed using Python 2.7. It is based on the OAuth sample from Udacity https://github.com/udacity/OAuth2.0
 
 ## Requirements
-Flask == 0.9<br>
-SQLAlchemy == 1.0.7<br>
-SeaSurf == 0.1.21<br>
-For easy installation, run pip install -r requirements.txt. Note, you may need to run this as root using sudo.
+Flask == 0.9
+SQLAlchemy == 1.0.7
+SeaSurf == 0.1.21
+
+For easy installation, run `pip install -r requirements.txt`. Note, you may need to run this as root using sudo.
 
 ## Set-up
-The data is stored in a sqlite database. To create the database, from the terminal run: 
+The data is stored in a sqlite database.
+
+To create the database, from the terminal run:
 ```
-python database_setup.py  
+python database_setup.py
 ```
-<br>
-To load the database, from the terminal run: 
+
+To load the database, from the terminal run:
 ```
-python lotsofevents-users.py  
+python lotsofevents-users.py
 ```
-<br>
+
 ## Run the app
 To launch the application, from the terminal run:
 ```
@@ -38,7 +41,7 @@ Home page <br>
 ![Alt text](readme-images/home.png "Home page")
 
 <br><br>
- 
+
 Event Details <br>
 ![Alt Text](readme-images/eventDetails.png "Event Details")
 
