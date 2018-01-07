@@ -32,11 +32,11 @@ print allCityNames
 allEventNames = session.query(Event.city_id).all()
 print allEventNames
 
-# Drop tables in case columns have changed during development  
-# Base.metadata.drop_all(engine)
+# IMPORTANT -- Drop tables in case columns have changed during development  
+#Base.metadata.drop_all(engine)
 
 # Confirm table columns
-# print Event.__table__.columns.keys()
+print Event.__table__.columns.keys()
 
 # Clear database tables - City, Event, User
 session.query(User).delete()
