@@ -45,7 +45,7 @@ session = DBSession()
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                    for x in xrange(32))
+        for x in xrange(32))
     login_session['state'] = state
     # return "The current session state: %s" % login_session['state'] #Debug
     return render_template('login.html', STATE=state)
@@ -134,7 +134,7 @@ def fbdisconnect():
     return "you have been logged out"
 
 
-# Login with Google Plus credentials and CSRF 
+# Login with Google Plus credentials and CSRF
 @csrf.exempt
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -145,6 +145,7 @@ def gconnect():
         return response
     # Obtain authorization code
     code = request.data
+    print "** DEBUG: code:", code
 
     try:
         # Upgrade the authorization code into a credentials object
@@ -159,9 +160,11 @@ def gconnect():
 
     # Check that the access token is valid.
     access_token = credentials.access_token
+    print "** DEBUG - access_token: ", access_token
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
+    print "** DEBUG - result: ", result
     # If there was an error in the access token info, abort.
     if result.get('error') is not None:
         response = make_response(json.dumps(result.get('error')), 500)
@@ -169,6 +172,7 @@ def gconnect():
 
     # Verify that the access token is used for the intended user.
     gplus_id = credentials.id_token['sub']
+    print "** DEBUG - gplus_id: ", gplus_id
     if result['user_id'] != gplus_id:
         response = make_response(json.dumps("Token's user ID doesn't match given user ID."), 401)
         print "UserId does not match GPlusId"
@@ -185,13 +189,14 @@ def gconnect():
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
+        print "** DEBUG: User is already logged in"
         response = make_response(json.dumps('Current user is already connected.'),
                                  200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
     # Store the access token in the session for later use.
-    login_session['credentials'] = credentials
+    login_session['credentials'] = credentials.access_token # TW Changed
     login_session['gplus_id'] = gplus_id
 
     # Get user info
@@ -207,7 +212,9 @@ def gconnect():
     login_session['provider'] = 'google'
 
     # Check if user exists, if not create a new user
-    user_id = getUserID(login_session['email'])
+    #user_id = getUserID(login_session['email'])
+    user_id = getUserID(data["email"])
+    print "** DEBUG - UserID: ", user_id
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
@@ -245,6 +252,13 @@ def getUserID(email):
         return None
 
 
+## TEST - If stuck logged in, access this route to clear Flask session
+@app.route('/clearSession')
+def clearSession():
+    login_session.clear()
+    return "Session cleared"
+
+
 # Logout from Google Plus credentials
 @app.route('/gdisconnect')
 def gdisconnect():
@@ -256,7 +270,7 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         # Display page listing all cities
         return redirect(url_for('showCities'))
-    access_token = credentials.access_token
+    access_token = credentials # TW Changed
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -311,7 +325,7 @@ def allCitiesAndEventsXML():
     comment = Comment('XML Response with all cities and events')
     top.append(comment)
 
-    # Loop through query responses and format as XML 
+    # Loop through query responses and format as XML
     for c in city:
         event = SubElement(top, 'event')
         child = SubElement(event, 'id')
@@ -332,31 +346,34 @@ def allCitiesAndEventsXML():
             child.text = e.event_url
             child = SubElement(en, 'user_id')
             child.text = str(e.user_id)
-     
+
         print tostring(top)
     return app.response_class(tostring(top), mimetype='application/xml')
 
 
-# Display all cities 
+# Display all cities
 @app.route('/')
 @app.route('/city/')
 def showCities():
     # List all cities (data for left-hand card panel)
     cities = session.query(City).order_by(asc(City.name))
+    # TW Debug test
+    for city in cities:
+        app.logger.info(city.__dict__)
 
     # List all events (data for right-hand card panel)
     allEvents = session.query(Event).join(Event.city).\
                 order_by(Event.event_date.desc(), City.name, Event.name).all()
-    
- 
+
+
     # Subquery to get count of events in each city
     q = session.query(City.id).subquery()
     cityCountTest = session.query(City.id, City.name, func.count(Event.city_id)).\
         filter(Event.city_id.in_(q)).\
         join(Event.city).\
-        group_by(City.name)      
-    
-    
+        group_by(City.name)
+
+
     cityCountTest1 = session.query(City.name, func.count(Event.city_id)).\
                     filter(Event.city_id ==\
                     session.query(City.id).\
@@ -387,7 +404,7 @@ def newCity():
         return redirect('/login')
 
     if request.method == 'POST':
-        newCity = City(name=request.form['city'], state=request.form['state'], 
+        newCity = City(name=request.form['city'], state=request.form['state'],
             user_id = login_session['user_id'])
         session.add(newCity)
         flash('New City "%s" Successfully Created' % newCity.name)
@@ -460,54 +477,54 @@ def showEvent(city_id):
     cities = session.query(City).order_by(asc(City.name))
 
     # Filter display in right-hand panel to events in selected city
-    city = session.query(City).filter_by(id=city_id).one() 
-    
+    city = session.query(City).filter_by(id=city_id).one()
+
     # Get all events in selected city
     events = session.query(Event).filter_by(city_id=city_id).\
             order_by(desc(Event.event_date)).all()
-    
+
     # Get count of events in selected city
     eventCountByCity = session.query(func.count(Event.city_id)).\
                         filter(Event.city_id == city_id).\
                         scalar()
-    return render_template('event.html', cities=cities, city=city, 
+    return render_template('event.html', cities=cities, city=city,
         eventCountByCity=eventCountByCity, events=events)
 
 
-# Show event details  
+# Show event details
 @app.route('/city/<int:city_id>/event-details/<int:event_id>')
 def showEventDetails(city_id, event_id):
     # Filter display on right-hand panel to events in selected city
-    city = session.query(City).filter_by(id=city_id).one() 
+    city = session.query(City).filter_by(id=city_id).one()
     # Get all events in selected city
     event = session.query(Event).filter_by(id=event_id).one()
     return render_template('eventDetails.html', city=city, event=event)
 
 
-# Create a new event in a city 
+# Create a new event in a city
 @app.route('/event/new/', methods=['GET', 'POST'])
 def newEvent():
     # Query all city locations to populate select menu in form
     locations = session.query(City).all()
-    # Only logged in users can add data 
+    # Only logged in users can add data
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
         # Format date value before submitting to database
         dt = request.form['event_date']
         dt_obj = datetime.strptime(dt, '%Y-%m-%d')
-        
+
         # Create event object based on form data
-        newEvent = Event(name=request.form['event'], 
-            description=request.form['description'], 
-            event_date=dt_obj, event_url=request.form['event_url'], 
-            image_url=request.form['image_url'], 
+        newEvent = Event(name=request.form['event'],
+            description=request.form['description'],
+            event_date=dt_obj, event_url=request.form['event_url'],
+            image_url=request.form['image_url'],
             city_id=request.form['city_id'], user_id=login_session['user_id'])
         session.add(newEvent)
         session.commit()
         flash('New Event "%s" Successfully Created' % (newEvent.name))
         return redirect(url_for('showEvent', city_id=newEvent.city_id))
-    else: 
+    else:
         return render_template('newEvent.html', locations=locations)
 
 
@@ -518,8 +535,8 @@ def editEvent(event_id):
     if 'username' not in login_session:
         return redirect('/login')
     # Get list of all cities to display in select menu
-    cities = session.query(City).order_by(asc(City.name))   
-    # Get Event information for event of interest 
+    cities = session.query(City).order_by(asc(City.name))
+    # Get Event information for event of interest
     editedEvent = session.query(Event).filter_by(id=event_id).one()
     # Events can only be edited by the user that submitted the event
     if editedEvent.user_id != login_session['user_id']:
@@ -551,7 +568,7 @@ def editEvent(event_id):
         flash('Event Successfully Edited')
         return redirect(url_for('showEvent', city_id=editedEvent.city_id))
     else:
-        return render_template('editEvent.html', event_id=event_id, 
+        return render_template('editEvent.html', event_id=event_id,
                 item=editedEvent, cities=cities)
 
 
@@ -580,7 +597,7 @@ def deleteEvent(event_id):
 # Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
-    app.logger.info(login_session['provider'])
+    #app.logger.info(login_session['provider'])
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             app.logger.info('Logout from Google Signin called')
