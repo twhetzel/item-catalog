@@ -1,5 +1,11 @@
-# Project requirements can be installed using pip install -r requirements.txt. 
-# Note: you may need to run as root using sudo. 
-pip install Flask
-pip install SQLAlchemy
-pip install flask-seasurf
+# Project requirements can be installed using pip install -r requirements.txt.
+# Note: you may need to run as root using sudo.
+
+flask==0.9
+SQLAlchemy == 1.0.7
+flask-seasurf == 0.1.21
+
+httplib2
+oauth2client
+psycopg2
+requests
