@@ -4,13 +4,21 @@
 This project is an example of an Item Catalog built during the Udacity FSND. It lists cities and events in each city. This project is developed using Python 2.7. It is based on the OAuth sample from Udacity https://github.com/udacity/OAuth2.0
 
 ## Requirements
-```
-Flask == 0.9
-SQLAlchemy == 1.0.7
-SeaSurf == 0.1.21
-```
 
-For easy installation, run `pip install -r requirements.txt`. Note, you may need to run this as root using "sudo" as `sudo pip install -r requirements.txt`.
+- Python 2.7
+- Flask
+- SQLAlchemy
+- SeaSurf
+- httplib2
+- oauth2client
+- psycopg2
+- requests
+- [Vagrant](https://www.vagrantup.com/)
+- [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+
+For easy installation on an existing Linux server, run `pip install -r requirements.txt`. Note, you may need to run this as root using "sudo" as `sudo pip install -r requirements.txt`.
+
+To prepare an environment to run the app locally, install Vagrant and Virtual Box and then run `vagrant up` from the same directory as the `Vagrantfile` for this project to configure the VM and install the needed modules. After the VM has launched, run `vagrant ssh` to login to the VM and then `cd  /vagrant` to navigate to the location of the app.
 
 ## Set-up
 The data is stored in a sqlite database.
