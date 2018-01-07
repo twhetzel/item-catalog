@@ -54,6 +54,14 @@ function signInCallback(authResult) {
 
 <!-- FACEBOOK SIGN IN -->
 <script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=423854264491431';
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
   function statusChangeCallback(response) {
     if (response.status === 'connected') {
       var access_token = FB.getAuthResponse()['accessToken'];
@@ -66,14 +74,6 @@ function signInCallback(authResult) {
       statusChangeCallback(response);
     });
   }
-
-  (function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=423854264491431';
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));
 
   function sendTokenToServer(access_token) {
     FB.api('/me', function(response) {
