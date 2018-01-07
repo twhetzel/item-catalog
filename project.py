@@ -59,8 +59,8 @@ def fbconnect():
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
+
     access_token = request.data
-    print "access token received %s " % access_token
 
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
@@ -70,13 +70,13 @@ def fbconnect():
         app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
+    data = json.loads(result)
 
     # Use token to get user info from API
-    userinfo_url = "https://graph.facebook.com/v2.4/me"
-    # strip expire tag from access token
-    token = result.split("&")[0]
+    userinfo_url = "https://graph.facebook.com/v2.8/me"
+    token = 'access_token=' + data['access_token']
 
-    url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
+    url = 'https://graph.facebook.com/v2.8/me?%s&fields=name,id,email' %  token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
