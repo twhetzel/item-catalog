@@ -3,14 +3,11 @@ from flask import Flask, render_template, request, redirect, jsonify, \
 from flask import session as login_session
 from flask.ext.seasurf import SeaSurf
 
-from sqlalchemy import create_engine, asc, desc, \
-    func, distinct
+from sqlalchemy import create_engine, asc, desc, func
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.serializer import loads, dumps
 from database_setup import Base, City, Event, User
 import random
 import string
-import logging
 import json
 import httplib2
 import requests
@@ -45,9 +42,8 @@ session = DBSession()
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
-        for x in xrange(32))
+                    for x in xrange(32))
     login_session['state'] = state
-    # return "The current session state: %s" % login_session['state'] #Debug
     return render_template('login.html', STATE=state)
 
 
@@ -66,17 +62,17 @@ def fbconnect():
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
-        app_id, app_secret, access_token)
+    url = 'https://graph.facebook.com/oauth/access_token?'\
+        'grant_type=fb_exchange_token&client_id=%s&client_secret=%s&'\
+        'fb_exchange_token=%s' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
 
     # Use token to get user info from API
-    userinfo_url = "https://graph.facebook.com/v2.8/me"
     token = 'access_token=' + data['access_token']
 
-    url = 'https://graph.facebook.com/v2.8/me?%s&fields=name,id,email' %  token
+    url = 'https://graph.facebook.com/v2.8/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -86,12 +82,15 @@ def fbconnect():
     login_session['email'] = data["email"]
     login_session['facebook_id'] = data["id"]
 
-    # The token must be stored in the login_session in order to properly logout, let's strip out the information before the equals sign in our token
+    # The token must be stored in the login_session in order to
+    # properly logout, let's strip out the information before the
+    # equals sign in our token
     stored_token = token.split("=")[1]
     login_session['access_token'] = stored_token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.5/me/picture?%s&redirect=0&height=200&width=200' % token
+    url = 'https://graph.facebook.com/v2.5/me/picture?'\
+        '%s&redirect=0&height=200&width=200' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -110,7 +109,8 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'\
+        '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("Now logged in as %s" % login_session['username'])
     return output
 
@@ -118,7 +118,6 @@ def fbconnect():
 # Logout from Facebook credentials
 @app.route('/fbdisconnect')
 def fbdisconnect():
-    facebook_id = login_session['facebook_id']
     del login_session['facebook_id']
     del login_session['username']
     del login_session['email']
@@ -126,11 +125,6 @@ def fbdisconnect():
     del login_session['user_id']
     del login_session['provider']
 
-    # The access token must me included to successfully logout
-    access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
-    h = httplib2.Http()
-    result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
 
 
@@ -153,15 +147,16 @@ def gconnect():
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        response = make_response(json.dumps('Failed to upgrade the authorization code.'), 401)
+        response = make_response(
+            json.dumps('Failed to upgrade the authorization code.'), 401)
         print "FlowExchangeError"
         response.headers['Content-Type'] = 'application/json'
         return response
 
     # Check that the access token is valid.
     access_token = credentials.access_token
-    print "** DEBUG - access_token: ", access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
+    url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?'\
+        'access_token=%s' % access_token
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
     print "** DEBUG - result: ", result
@@ -174,14 +169,16 @@ def gconnect():
     gplus_id = credentials.id_token['sub']
     print "** DEBUG - gplus_id: ", gplus_id
     if result['user_id'] != gplus_id:
-        response = make_response(json.dumps("Token's user ID doesn't match given user ID."), 401)
+        response = make_response(
+            json.dumps("Token's user ID doesn't match given user ID."), 401)
         print "UserId does not match GPlusId"
         response.headers['Content-Type'] = 'application/json'
         return response
 
     # Verify that the access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
-        response = make_response(json.dumps("Token's client ID does not match app's."), 401)
+        response = make_response(
+            json.dumps("Token's client ID does not match app's."), 401)
         print "Token's client ID does not match app's."
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -190,13 +187,13 @@ def gconnect():
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
         print "** DEBUG: User is already logged in"
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
     # Store the access token in the session for later use.
-    login_session['credentials'] = credentials.access_token # TW Changed
+    login_session['credentials'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
     # Get user info
@@ -212,9 +209,7 @@ def gconnect():
     login_session['provider'] = 'google'
 
     # Check if user exists, if not create a new user
-    #user_id = getUserID(login_session['email'])
     user_id = getUserID(data["email"])
-    print "** DEBUG - UserID: ", user_id
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
@@ -225,14 +220,18 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'\
+        '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("You are now logged in as %s" % login_session['username'])
     return output
 
 
 # User Helper Functions
 def createUser(login_session):
-    newUser = User(name=login_session['username'], email=login_session['email'], picture=login_session['picture'])
+    newUser = User(
+        name=login_session['username'],
+        email=login_session['email'],
+        picture=login_session['picture'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
@@ -252,7 +251,7 @@ def getUserID(email):
         return None
 
 
-## TEST - If stuck logged in, access this route to clear Flask session
+# If stuck logged in, access this route to clear Flask session
 @app.route('/clearSession')
 def clearSession():
     login_session.clear()
@@ -270,8 +269,9 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         # Display page listing all cities
         return redirect(url_for('showCities'))
-    access_token = credentials # TW Changed
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    access_token = credentials
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
+        % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
 
@@ -300,9 +300,6 @@ def gdisconnect():
 @app.route('/city/<int:city_id>/event/JSON')
 def cityEventsJSON(city_id):
     city = session.query(City).filter_by(id=city_id).one()
-    events = session.query(Event).filter_by(
-        city_id=city_id).all()
-    events_to_serialize = [e.serialize for e in events]
     return jsonify(cityEvents=[city.serialize])
 
 
@@ -357,41 +354,16 @@ def allCitiesAndEventsXML():
 def showCities():
     # List all cities (data for left-hand card panel)
     cities = session.query(City).order_by(asc(City.name))
-    # TW Debug test
     for city in cities:
         app.logger.info(city.__dict__)
 
     # List all events (data for right-hand card panel)
     allEvents = session.query(Event).join(Event.city).\
-                order_by(Event.event_date.desc(), City.name, Event.name).all()
-
-
-    # Subquery to get count of events in each city
-    q = session.query(City.id).subquery()
-    cityCountTest = session.query(City.id, City.name, func.count(Event.city_id)).\
-        filter(Event.city_id.in_(q)).\
-        join(Event.city).\
-        group_by(City.name)
-
-
-    cityCountTest1 = session.query(City.name, func.count(Event.city_id)).\
-                    filter(Event.city_id ==\
-                    session.query(City.id).\
-                    join(Event.city)).\
-                    group_by(City.name)
-
-    theCityId = session.query(City.id).subquery('cid')
-
-    test = session.query(City).join(Event.city)
+        order_by(Event.event_date.desc(), City.name, Event.name).all()
 
     # Returns total num of cities
     cityCount = session.query(func.count(City.id)).scalar()
     app.logger.info(cityCount)
-
-    # Test query
-    for eventCountByCity in session.query(func.count(Event.city_id)).\
-        filter(Event.city_id == '5'):
-        app.logger.info(eventCountByCity)
 
     return render_template('cities.html', cities=cities, allEvents=allEvents)
 
@@ -404,8 +376,10 @@ def newCity():
         return redirect('/login')
 
     if request.method == 'POST':
-        newCity = City(name=request.form['city'], state=request.form['state'],
-            user_id = login_session['user_id'])
+        newCity = City(
+            name=request.form['city'],
+            state=request.form['state'],
+            user_id=login_session['user_id'])
         session.add(newCity)
         flash('New City "%s" Successfully Created' % newCity.name)
         session.commit()
@@ -436,7 +410,7 @@ def editCity(city_id):
             flash('City Successfully Edited %s' % editedCity.name)
             return redirect(url_for('showCities'))
     else:
-      return render_template('editCity.html', city=editedCity)
+        return render_template('editCity.html', city=editedCity)
 
 
 # Delete a city
@@ -465,7 +439,7 @@ def deleteCity(city_id):
 @app.route('/all-events/')
 def showAllEvents():
     allEvents = session.query(Event).join(Event.city).\
-    order_by(Event.event_date.desc(), City.name, Event.name).all()
+        order_by(Event.event_date.desc(), City.name, Event.name).all()
     return render_template('all-events.html', allEvents=allEvents)
 
 
@@ -480,14 +454,16 @@ def showEvent(city_id):
     city = session.query(City).filter_by(id=city_id).one()
 
     # Get all events in selected city
-    events = session.query(Event).filter_by(city_id=city_id).\
-            order_by(desc(Event.event_date)).all()
+    events = session.query(Event).\
+        filter_by(city_id=city_id).\
+        order_by(desc(Event.event_date)).all()
 
     # Get count of events in selected city
     eventCountByCity = session.query(func.count(Event.city_id)).\
-                        filter(Event.city_id == city_id).\
-                        scalar()
-    return render_template('event.html', cities=cities, city=city,
+        filter(Event.city_id == city_id).scalar()
+
+    return render_template(
+        'event.html', cities=cities, city=city,
         eventCountByCity=eventCountByCity, events=events)
 
 
@@ -515,7 +491,8 @@ def newEvent():
         dt_obj = datetime.strptime(dt, '%Y-%m-%d')
 
         # Create event object based on form data
-        newEvent = Event(name=request.form['event'],
+        newEvent = Event(
+            name=request.form['event'],
             description=request.form['description'],
             event_date=dt_obj, event_url=request.form['event_url'],
             image_url=request.form['image_url'],
@@ -568,8 +545,9 @@ def editEvent(event_id):
         flash('Event Successfully Edited')
         return redirect(url_for('showEvent', city_id=editedEvent.city_id))
     else:
-        return render_template('editEvent.html', event_id=event_id,
-                item=editedEvent, cities=cities)
+        return render_template(
+            'editEvent.html', event_id=event_id,
+            item=editedEvent, cities=cities)
 
 
 # Delete an Event
@@ -597,7 +575,6 @@ def deleteEvent(event_id):
 # Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
-    #app.logger.info(login_session['provider'])
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             app.logger.info('Logout from Google Signin called')
