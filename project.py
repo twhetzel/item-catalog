@@ -139,7 +139,6 @@ def gconnect():
         return response
     # Obtain authorization code
     code = request.data
-    print "** DEBUG: code:", code
 
     try:
         # Upgrade the authorization code into a credentials object
@@ -149,7 +148,6 @@ def gconnect():
     except FlowExchangeError:
         response = make_response(
             json.dumps('Failed to upgrade the authorization code.'), 401)
-        print "FlowExchangeError"
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -159,7 +157,6 @@ def gconnect():
         'access_token=%s' % access_token
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
-    print "** DEBUG - result: ", result
     # If there was an error in the access token info, abort.
     if result.get('error') is not None:
         response = make_response(json.dumps(result.get('error')), 500)
@@ -167,11 +164,9 @@ def gconnect():
 
     # Verify that the access token is used for the intended user.
     gplus_id = credentials.id_token['sub']
-    print "** DEBUG - gplus_id: ", gplus_id
     if result['user_id'] != gplus_id:
         response = make_response(
             json.dumps("Token's user ID doesn't match given user ID."), 401)
-        print "UserId does not match GPlusId"
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -179,14 +174,12 @@ def gconnect():
     if result['issued_to'] != CLIENT_ID:
         response = make_response(
             json.dumps("Token's client ID does not match app's."), 401)
-        print "Token's client ID does not match app's."
         response.headers['Content-Type'] = 'application/json'
         return response
 
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
-        print "** DEBUG: User is already logged in"
         response = make_response(
             json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
@@ -344,7 +337,6 @@ def allCitiesAndEventsXML():
             child = SubElement(en, 'user_id')
             child.text = str(e.user_id)
 
-        print tostring(top)
     return app.response_class(tostring(top), mimetype='application/xml')
 
 
@@ -354,8 +346,6 @@ def allCitiesAndEventsXML():
 def showCities():
     # List all cities (data for left-hand card panel)
     cities = session.query(City).order_by(asc(City.name))
-    for city in cities:
-        app.logger.info(city.__dict__)
 
     # List all events (data for right-hand card panel)
     allEvents = session.query(Event).join(Event.city).\
@@ -363,7 +353,6 @@ def showCities():
 
     # Returns total num of cities
     cityCount = session.query(func.count(City.id)).scalar()
-    app.logger.info(cityCount)
 
     return render_template('cities.html', cities=cities, allEvents=allEvents)
 
@@ -402,7 +391,6 @@ def editCity(city_id):
                 onload='myFunction()''>"
     # Submit edits of city data
     if request.method == 'POST':
-        app.logger.info('POST request called')
         if request.form['name']:
             editedCity.name = request.form['name']
         if request.form['state']:
@@ -528,16 +516,12 @@ def editEvent(event_id):
             editedEvent.event_date = dt_obj
         if request.form['name']:
             editedEvent.name = request.form['name']
-            app.logger.info(editedEvent.name)
         if request.form['description']:
             editedEvent.description = request.form['description']
-            app.logger.info(editedEvent.description)
         if request.form['city_id']:
             editedEvent.city_id = request.form['city_id']
-            app.logger.info(editedEvent.city_id)
         if request.form['event_url']:
             editedEvent.event_url = request.form['event_url']
-            app.logger.info(editedEvent.event_url)
         if request.form['image_url']:
             editedEvent.image_url = request.form['image_url']
         session.add(editedEvent)
@@ -577,10 +561,8 @@ def deleteEvent(event_id):
 def disconnect():
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
-            app.logger.info('Logout from Google Signin called')
             gdisconnect()
         if login_session['provider'] == 'facebook':
-            app.logger.info('Logout from Facebook called')
             fbdisconnect()
         flash("You have successfully been logged out.")
         return redirect(url_for('showCities'))
